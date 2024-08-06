@@ -31,24 +31,23 @@ HOME_CONFIG = "home"
 
 
 class MissionPlanner:
-
-    def __init__(self, run_srv_client: bool = True) -> None:
-
+    
+    def __init__(self) -> None:
         rospy.init_node("simple_ur5_controller", log_level=2, anonymous=True)
         rospy.loginfo("Initialising MissionPlanner")
-        self.rate = rospy.Rate(CONTROL_RATE)
+        self._rate = rospy.Rate(CONTROL_RATE)
 
         # Initialize the UR3e controller
-        self.ur5e = UR5e()
+        self.robot = UR5e()
         self._system_halted = False
         self._success = True
 
         # @NOTE: no Collision at the moment
-        # self.collisions = CollisionManager(self.ur5e.get_scene())
+        # self.collisions = CollisionManager(self.robot.get_scene())
 
         # Setup the scene with ur3e controller and homing
-        self.ur5e.go_to_target_pose_name(HOME_CONFIG)
-        # self.ur5e.open_gripper_to(width=580, force=200)
+        self.robot.go_to_target_pose_name(HOME_CONFIG)
+        # self.robot.open_gripper_to(width=580, force=200)
 
         # @TODO: review this method
         # # TF2 listener and broadcaster to deal with the transformation
@@ -66,14 +65,14 @@ class MissionPlanner:
         self._system_loop()
 
 
-    def _system_loop(self):
-        # self.ur5e.go_to_pose_goal()
+    def _system_loop(self) -> None:
+        # self.robot.go_to_pose_goal()
         pass
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         rospy.loginfo("Cleaning up")
         # self._safety_thread.join()
-        self.ur5e.shutdown()
+        self.robot.shutdown()
         self.collisions.remove_collision_object()
         rospy.loginfo("Clean-up completed")
 

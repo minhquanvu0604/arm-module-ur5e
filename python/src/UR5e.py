@@ -212,7 +212,7 @@ class UR5e:
 
         self.visualize_target_pose(pose)
 
-        path, _ = self.gen_carternian_path(pose)
+        path, _ = self._gen_carternian_path(pose)
         self.display_traj(path)
         self.execute_plan(path)
 
@@ -224,56 +224,6 @@ class UR5e:
         cur_pose = self._group.get_current_pose().pose
 
         return all_close(pose, cur_pose, 0.001)
-
-
-    def gen_carternian_path(self, target_pose: Pose, step_resolution=0.001, jump_thresh=0.0):
-        r"""
-        Generate a cartesian path as a straight line to a desired pose .
-
-        @returns: RobotTrajectory instance for the cartesian path
-
-        @TODO: Check this function
-        """
-        plan = None
-        fraction = 0.0
-        fix_itterations = 0
-        current_pose = self._group.get_current_pose().pose
-
-        # generate a straight line path using a scaling 0 to 1 applied to the target pose differ to current pose
-        waypoints = [current_pose, target_pose]
-        distance = np.linalg.norm(
-            pose_to_SE3(target_pose).t - pose_to_SE3(current_pose).t)
-        ee_step = 0.0001 if distance > 0.01 else step_resolution
-
-        # Blocking loop to ensure the cartesian path is fully planned
-        while fraction < 0.8:
-
-            (plan, fraction) = self._group.compute_cartesian_path(
-                waypoints, ee_step, jump_thresh, avoid_collisions=True, path_constraints=self.constraints)
-
-            fix_itterations += 1
-            if fix_itterations > 50:  # Maxium fix itterations
-                rospy.logerr("Failed to find a plan")
-                return None, 0.0
-
-        # check if the plan is valid with timestamp duplication
-        path = [plan.joint_trajectory.points[0]]
-        for i in range(1, len(plan.joint_trajectory.points)):
-
-            cur_point_stamp = plan.joint_trajectory.points[i].time_from_start.to_sec()
-            prev_point_stamp = plan.joint_trajectory.points[i-1].time_from_start.to_sec()
-
-            if cur_point_stamp == prev_point_stamp == 0:
-                continue    
-
-            path.append(plan.joint_trajectory.points[i])
-
-        plan.joint_trajectory.points = path    
-        print(len(plan.joint_trajectory.points))   
-        rospy.loginfo(
-            f"Fraction planned: {fraction}; Fix itteration {fix_itterations}")
-        return plan, fraction
-
 
     def execute_plan(self, plan: RobotTrajectory):
         r"""
@@ -325,7 +275,7 @@ class UR5e:
             rospy.logerr("Invalid axis")
             return False
 
-        plan, frac = self.gen_carternian_path(target_pose=goal)
+        plan, frac = self._gen_carternian_path(target_pose=goal)
         if plan is None:
             return False
         
@@ -344,6 +294,55 @@ class UR5e:
     # def open_gripper_to(self, width, force=None):
     #     self._gripper.open_to(width, force)
     #     rospy.sleep(1)
+
+    
+    def _gen_carternian_path(self, target_pose: Pose, step_resolution=0.001, jump_thresh=0.0):
+        r"""
+        Generate a cartesian path as a straight line to a desired pose .
+
+        @returns: RobotTrajectory instance for the cartesian path
+
+        @TODO: Check this function
+        """
+        plan = None
+        fraction = 0.0
+        fix_itterations = 0
+        current_pose = self._group.get_current_pose().pose
+
+        # generate a straight line path using a scaling 0 to 1 applied to the target pose differ to current pose
+        waypoints = [current_pose, target_pose]
+        distance = np.linalg.norm(
+            pose_to_SE3(target_pose).t - pose_to_SE3(current_pose).t)
+        ee_step = 0.0001 if distance > 0.01 else step_resolution
+
+        # Blocking loop to ensure the cartesian path is fully planned
+        while fraction < 0.8:
+
+            (plan, fraction) = self._group.compute_cartesian_path(
+                waypoints, ee_step, jump_thresh, avoid_collisions=True, path_constraints=self.constraints)
+
+            fix_itterations += 1
+            if fix_itterations > 50:  # Maxium fix itterations
+                rospy.logerr("Failed to find a plan")
+                return None, 0.0
+
+        # check if the plan is valid with timestamp duplication
+        path = [plan.joint_trajectory.points[0]]
+        for i in range(1, len(plan.joint_trajectory.points)):
+
+            cur_point_stamp = plan.joint_trajectory.points[i].time_from_start.to_sec()
+            prev_point_stamp = plan.joint_trajectory.points[i-1].time_from_start.to_sec()
+
+            if cur_point_stamp == prev_point_stamp == 0:
+                continue    
+
+            path.append(plan.joint_trajectory.points[i])
+
+        plan.joint_trajectory.points = path    
+        print(len(plan.joint_trajectory.points))   
+        rospy.loginfo(
+            f"Fraction planned: {fraction}; Fix itteration {fix_itterations}")
+        return plan, fraction
 
 
     # ============ Getters =====================================================================================
