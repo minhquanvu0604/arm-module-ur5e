@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robot_model" default="ur5e" />
+    <arg name="robot_ip" default="192.168.0.169" />
+    <!-- <arg name="tool_device_name" default="/tmp/ttyUR" />
+    <arg name="tool_tcp_port" default="54321" />
+    <arg name="gripper_controller" default="gripper_action" /> -->
+    <arg name="rviz" default="true" />
+    
+    <arg name="kinematics_config" default="$(find ur_description)/config/$(arg robot_model)/default_kinematics.yaml" />
+    
+    <!-- Modified from tonydle/ur_onrobot 
+    https://github.com/tonydle/ur_onrobot/blob/feat/moveit/ur_onrobot/launch/ur_onrobot_rg_bringup.launch-->    
+    
+        
+    <arg name="robot_description_file" default="$(find simple_ur5_controller)/launch/load_ur_pillar.launch" />
+    
+    <include file="$(find ur_robot_driver)/launch/$(arg robot_model)_bringup.launch" ns="ur" >
+        <arg name="robot_ip" value="$(arg robot_ip)" />
+        <arg name="kinematics_config" value="$(arg kinematics_config)" />
+        <arg name="robot_description_file" value="$(arg robot_description_file)" />
+        
+        <!-- NO GRIPPER  
+        <arg name="use_tool_communication" value="true" />
+        <arg name="tool_voltage" value="24" />
+        <arg name="tool_parity" value="2" />
+        <arg name="tool_baud_rate" value="1000000" />
+        <arg name="tool_stop_bits" value="1" />
+        <arg name="tool_rx_idle_chars" value="1.5" />
+        <arg name="tool_tx_idle_chars" value="3.5" />
+        <arg name="tool_device_name" value="$(arg tool_device_name)" />
+        <arg name="tool_tcp_port" value="$(arg tool_tcp_port)" /> -->
+    </include>
+
+    <!-- Also load the model to /robot_description (outside of the "ur" namespace) -->
+    <include file="$(arg robot_description_file)" >
+        <arg name="robot_model" value="$(arg robot_model)" />
+    </include>
+
+    <!-- NO GRIPPER
+    <include file="$(find ur_onrobot_rg_control)/launch/bringup_rg.launch">
+        <arg name="device" value="$(arg tool_device_name)" />
+        <arg name="gripper" value="$(arg onrobot_model)" />
+        <arg name="controller" value="$(arg gripper_controller)" />
+    </include> -->
+
+    <!-- ALREADY HAVE ROBOT STATE PUBLISHER IN UR_ROBOT_DRIVER  
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <rosparam param="source_list">[/ur/joint_states,/onrobot/joint_states]</rosparam>
+    </node> -->
+
+    <group if="$(arg rviz)">
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find simple_ur5_controller)/cfg/view_robot.rviz" required="true"/>
+    </group>
+</launch>

@@ -1,4 +1,4 @@
-# simple-UR5-planner
+# Simple UR5 Controller
 Used for setting up the UR5e manipulator using Universal Robot ROS Driver and MoveIt
 
 ## Resources
@@ -38,7 +38,13 @@ sudo apt install ros-noetic-moveit
 sudo apt-get install ros-noetic-ur5e-moveit-config
 ```
 
+# Launching UR5 model with base
+## Launching Simulation
 
+
+
+
+# Launching only the UR5 
 ## Launching Real Hardware
 Launch UR5e MoveIt config
 
@@ -47,7 +53,6 @@ Launch UR5e MoveIt config
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 
 ```roslaunch ur5e_moveit_config moveit_rviz.launch```
-
 
 ## Launching Simulation
 Bring up the simulated robot in Gazebo
@@ -60,4 +65,4 @@ Setting up the MoveIt! nodes to allow motion planning
 
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 
-```roslaunch ur5_moveit_config moveit_rviz.launch```
+```roslaunch ur5e_moveit_config moveit_rviz.launch```
