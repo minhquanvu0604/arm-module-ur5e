@@ -9,6 +9,8 @@ from copy import deepcopy
 
 import rospy
 import tf2_ros
+from sensor_msgs.msg import JointState
+
 
 
 # Add path
@@ -28,12 +30,13 @@ from src.utility import *
 
 CONTROL_RATE = 10  # Hz
 HOME_CONFIG = "home"
+UP_CONFIG = "up"
 
 
 class MissionPlanner:
     
     def __init__(self) -> None:
-        rospy.init_node("simple_ur5_controller", log_level=2, anonymous=True)
+        rospy.init_node("simple_ur5_controller", log_level=1, anonymous=True)
         rospy.loginfo("Initialising MissionPlanner")
         self._rate = rospy.Rate(CONTROL_RATE)
 
@@ -46,7 +49,7 @@ class MissionPlanner:
         # self.collisions = CollisionManager(self.robot.get_scene())
 
         # Setup the scene with ur3e controller and homing
-        self.robot.go_to_target_pose_name(HOME_CONFIG)
+        # self.robot.go_to_target_pose_name(UP_CONFIG)
         # self.robot.open_gripper_to(width=580, force=200)
 
         # @TODO: review this method
@@ -66,22 +69,43 @@ class MissionPlanner:
 
 
     def _system_loop(self) -> None:
-        # self.robot.go_to_pose_goal()
-        pass
+
+        # home = [17.47, -85.7, 82.5, -86.4, -86.4, 10]
+
+        goal1 = Pose()
+        goal1.position.x = -0.3
+        goal1.position.y = 0.5
+        goal1.position.z = 0.6
+        goal1.orientation = self.robot.get_current_pose().orientation
+        self.robot._group.go(goal1, wait=True)
+        self.robot._group.clear_pose_targets()
+        rospy.sleep(1)
+        
+        goal2 = Pose()
+        goal2.position.x = 0
+        goal2.position.y = 0.6
+        goal2.position.z = 0.5
+        goal2.orientation = self.robot.get_current_pose().orientation
+        self.robot._group.go(goal2, wait=True)
+        self.robot._group.clear_pose_targets()
+        rospy.sleep(1)
+        
+        goal3 = Pose()
+        goal3.position.x = 0.3
+        goal3.position.y = 0.2
+        goal3.position.z = 0.6
+        goal3.orientation = self.robot.get_current_pose().orientation
+        self.robot._group.go(goal3, wait=True)
+        self.robot._group.clear_pose_targets()
+  
 
     def _cleanup(self) -> None:
         rospy.loginfo("Cleaning up")
         # self._safety_thread.join()
         self.robot.shutdown()
-        self.collisions.remove_collision_object()
+        # self.collisions.remove_collision_object()
         rospy.loginfo("Clean-up completed")
 
 
 if __name__ == "__main__":
     mp = MissionPlanner()
-
-    # a = Pose()
-
-
-
-    # mp.ur5e.go_to_target_pose_name()

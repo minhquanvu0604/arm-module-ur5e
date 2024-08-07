@@ -311,9 +311,10 @@ class UR5e:
 
         # generate a straight line path using a scaling 0 to 1 applied to the target pose differ to current pose
         waypoints = [current_pose, target_pose]
-        distance = np.linalg.norm(
-            pose_to_SE3(target_pose).t - pose_to_SE3(current_pose).t)
-        ee_step = 0.0001 if distance > 0.01 else step_resolution
+        # distance = np.linalg.norm(
+        #     pose_to_SE3(target_pose).t - pose_to_SE3(current_pose).t)
+        # ee_step = 0.001 if distance > 0.01 else step_resolution
+        ee_step = step_resolution
 
         # Blocking loop to ensure the cartesian path is fully planned
         while fraction < 0.8:
