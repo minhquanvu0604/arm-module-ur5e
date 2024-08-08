@@ -2,7 +2,7 @@
 Used for setting up the UR5e manipulator using Universal Robot ROS Driver and MoveIt
 
 ## Resources
-### [Universal Robot ROS Driver](https://github.com/ros-industrial/universal_robot)
+### Universal Robot ROS Driver - [link](https://github.com/ros-industrial/universal_robot)
 - Install the External Control URCap - DONE
 - Set the IP Address for the ROS PC 
 - Tutorials for e-Series robot
@@ -28,12 +28,12 @@ sudo apt install ros-noetic-ur-robot-driver
 sudo apt-get install ros-noetic-ur-gazebo
 ```
 
-- MoveIt
+- MoveIt!
 ```bash
 sudo apt install ros-noetic-moveit
 ```
 
-- MoveIt Config
+- MoveIt! Config
 ```bash
 sudo apt-get install ros-noetic-ur5e-moveit-config
 ```
@@ -44,9 +44,13 @@ sudo apt-get install ros-noetic-ur5e-moveit-config
 
 # Launching only the UR5 
 ## Launching Real Hardware
+Start the robot driver
+
+```roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=192.168....```
+
 Launch UR5e MoveIt config
 
-```moveit_planning_execution.launch```
+```roslaunch ur5e_moveit_config moveit_planning_execution.launch```
 
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 
@@ -57,10 +61,12 @@ Bring up the simulated robot in Gazebo
 
 ```roslaunch ur_gazebo ur5e_bringup.launch ```
 
+Setting up the MoveIt! nodes to allow motion planning
+
+```roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true```
+
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 
 ```roslaunch ur5e_moveit_config moveit_rviz.launch```
 
-Setting up the MoveIt! nodes to allow motion planning
 
-```roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true```

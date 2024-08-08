@@ -3,25 +3,13 @@ from dataclasses import dataclass
 
 import rospy
 import tf
+import tf.transformations
+
 from geometry_msgs.msg import Pose, PoseStamped, TransformStamped
 from visualization_msgs.msg import Marker
 from moveit_commander.conversions import pose_to_list
-from moveit_commander import PlannerInterfaceDescription, MoveGroupCommander, PlanningSceneInterface
 
 from math import pi, tau, dist, fabs, cos
-
-import tf.transformations
-# from spatialmath import SE3
-
-
-@dataclass
-class Bottle:
-    r"""
-    A class to represent a bottle object.
-    """
-    id: str
-    type: str
-    pose: Pose
 
 
 def all_close(goal, actual, tolerance):
@@ -128,40 +116,41 @@ def pose_to_transformstamped(pose: Pose, child_frame_id: str, parent_frame_id: s
     return ts
 
 
-def create_marker(frame: str, type: int, pose: Pose, scale=[0.01, 0.01, 0.01], color=[0, 1, 0, 1]) -> Marker:
-    r"""
-    Create a marker for visualization
+def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], color=[0, 1, 0, 1]) -> Marker:
 
-    @param: frame The frame id of the marker
-    @param: type The type of the marker, 0: Arrow, 1: Cube, 2: Sphere, 3: Cylinder, 4: Line Strip, 5: Line List, 6: Cube List, 7: Sphere List, 8: Points, 9: Text
-    @param: pose The pose of the marker
-    @param: scale The scale of the marker
-    @param: color The color of the marker
-    @returns: Marker A marker instance
-
-    """
     marker = Marker()
 
     marker.header.frame_id = frame
     marker.header.stamp = rospy.Time.now()
 
-    # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
-    marker.type = type
-    marker.id = 0
+    # marker.type = type
+    # marker.id = 0
+    # marker.pose = pose
 
-    # Set the pose of the marker
+    # marker.scale.x = scale[0]
+    # marker.scale.y = scale[1]
+    # marker.scale.z = scale[2]
+
+    # marker.color.r = color[0]
+    # marker.color.g = color[1]
+    # marker.color.b = color[2]
+    # marker.color.a = color[3]
+    marker.ns = "markers"
+    marker.id = 0
+    marker.type = type
+    marker.action = Marker.ADD
     marker.pose = pose
 
-    # Set the scale of the marker
     marker.scale.x = scale[0]
     marker.scale.y = scale[1]
     marker.scale.z = scale[2]
 
-    # Set the color
     marker.color.r = color[0]
     marker.color.g = color[1]
     marker.color.b = color[2]
     marker.color.a = color[3]
+
+    marker.lifetime = rospy.Duration()  # Marker never expires
 
     return marker
 
@@ -182,19 +171,3 @@ def list_to_PoseStamped(pose: list, frame_id: str = "base_link_inertia") -> Pose
     ps.pose.orientation.w = ori_in_quat[3]
 
     return ps
-
-
-# def pose_to_SE3(p: Pose) -> SE3:
-
-#     pose_in_homogenous = tf.TransformerROS.fromTranslationRotation(tf.TransformerROS,
-#                                                                    translation=(
-#                                                                        p.position.x,
-#                                                                        p.position.y,
-#                                                                        p.position.z),
-#                                                                    rotation=(
-#                                                                        p.orientation.x,
-#                                                                        p.orientation.y,
-#                                                                        p.orientation.z,
-#                                                                        p.orientation.w))
-
-#     return SE3(pose_in_homogenous)
