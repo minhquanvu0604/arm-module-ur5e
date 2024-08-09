@@ -74,3 +74,23 @@ Starting up RViz with a configuration including the MoveIt! Motion Planning plug
 Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to simple_ur5_controller/python/scripts/
 
 ```python3 reach_waypoints.py```
+
+
+# Docker 
+Allowing the root user to connect to X server - for applications inside Docker container to display GUI 
+```bash
+xhost +local:root
+```
+Build Docker image
+```bash
+docker build -t moveit_ur5_image -f docker/Dockerfile .
+```
+Run the container
+```bash
+./run_image.sh
+```
+Open a iteractive shell inside the container
+```bash
+docker exec -it moveit_ur5_container bash -c "source /opt/ros/noetic/setup.bash && source /root/apple_ws/devel/setup.bash && exec bash"
+```
+Run the program with intructions above as you normall do in you host OS
