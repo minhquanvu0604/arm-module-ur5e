@@ -79,37 +79,15 @@ class MissionPlanner:
     def system_loop(self) -> None:
         # initial_config = [17.47, -85.7, 82.5, -86.4, -86.4, 10]
 
-        # goal1 = Pose()
-        # goal1.position.x = -0.3
-        # goal1.position.y = 0.5
-        # goal1.position.z = 0.6
-        # goal1.orientation = self.robot.get_current_pose().orientation
-        # self.robot.group.go(goal1, wait=True)
-        # self.robot.group.clear_pose_targets()
-        # rospy.sleep(1)
-        
-        # goal2 = Pose()
-        # goal2.position.x = 0
-        # goal2.position.y = 0.6
-        # goal2.position.z = 0.5
-        # goal2.orientation = self.robot.get_current_pose().orientation
-        # self.robot.group.go(goal2, wait=True)
-        # self.robot.group.clear_pose_targets()
-        # rospy.sleep(1)
-        
-        # goal3 = Pose()
-        # goal3.position.x = 0.3
-        # goal3.position.y = 0.2
-        # goal3.position.z = 0.6
-        # goal3.orientation = self.robot.get_current_pose().orientation
-        # self.robot.group.go(goal3, wait=True)
-        # self.robot.group.clear_pose_targets()
-
-
         waypoints = MissionPlanner.extract_waypoints(WAYPOINT_PATH)
         parent_frame_id = "world"
-        for waypoint in waypoints:
-            self.robot.go_to_pose_goal(waypoint, None, parent_frame_id)
+        goal_id = 0
+        for pose in waypoints:
+            print(f"[MissionPlanner] Start planning goal {goal_id}\n{pose}")
+            # self.robot.go_to_pose_goal(pose, None, parent_frame_id)
+            self.robot.go_to_pose_goal_simple(pose)
+            print(f"[MissionPlanner] Goal {goal_id} completed")
+            goal_id += 1
 
 
 

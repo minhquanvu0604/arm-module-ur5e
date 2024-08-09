@@ -19,10 +19,10 @@ from src.utility import *
 # from scipy.spatial.transform import Rotation as R
 
 # Constants variables
-POS_TOL = 0.001  # m
-ORI_TOL = 0.001  # m
-MAX_VEL_SCALE_FACTOR = 0.05
-MAX_ACC_SCALE_FACTOR = 0.05
+POS_TOL = 0.05  # m
+ORI_TOL = 0.05  # m
+MAX_VEL_SCALE_FACTOR = 0.5
+MAX_ACC_SCALE_FACTOR = 0.5
 
 
 class Manipulator(ABC):
@@ -86,7 +86,7 @@ class UR5e(Manipulator):
         # self.group.set_start_state_to_current_state()
         self.group.set_planner_id("RRTConnect") # ompl_planning.yaml
         self.group.set_planning_time(20)
-        self.group.set_num_planning_attempts(5)
+        self.group.set_num_planning_attempts(10)
         self.group.set_goal_position_tolerance(POS_TOL)
         self.group.set_goal_joint_tolerance(POS_TOL)
         self.group.set_max_velocity_scaling_factor(MAX_VEL_SCALE_FACTOR)
@@ -198,6 +198,7 @@ class UR5e(Manipulator):
         @param: wait A bool to wait for the robot to reach the goal
         @returns: bool True if successful by comparing the goal and actual poses
         """
+        # self._visualise_1_point(pose)
 
         self.group.set_pose_target(pose)
         self.group.go(wait=wait)
@@ -236,19 +237,6 @@ class UR5e(Manipulator):
         @param: wait A bool to wait for the robot to reach the goal
         @returns: bool True if successful by comparing the goal and actual poses
         """
-
-        # rate = rospy.Rate(1)  # 1 Hz
-        # while not rospy.is_shutdown():
-        #     pose = Pose()
-        #     pose.position.x = 0.262
-        #     pose.position.y = 0.731
-        #     pose.position.z = 0.655
-        #     print(f"Visualizing target pose: {pose.position.x, pose.position.y, pose.position.z}")
-
-        #     self._visualize_target_pose(pose, frame_id='world')
-        #     rate.sleep()
-
-
         # TODO: Review a better way to do this
         # have to do this because the pose is in the camera frame
 
@@ -257,11 +245,10 @@ class UR5e(Manipulator):
                 pose, child_frame_id, parent_frame_id)
 
         self._visualize_target_pose(pose, frame_id='world')
-        print("Visualizing target pose: ", pose)
 
         plan, _ = self._gen_cartersian_path(pose)
 
-        self._display_traj(plan)
+        # self._display_traj(plan)
         self._execute_plan(plan, wait=True)
 
         # self.group.set_pose_target(pose)
@@ -345,7 +332,7 @@ class UR5e(Manipulator):
     #     rospy.sleep(1)
 
     
-    def _gen_cartersian_path(self, target_pose: Pose, step_resolution=0.001, jump_thresh=0.0):
+    def _gen_cartersian_path(self, target_pose: Pose, ee_step=0.01, jump_thresh=0.0):
         r"""
         Generate a cartesian path as a straight line to a desired pose .
 
@@ -357,7 +344,6 @@ class UR5e(Manipulator):
         current_pose = self.group.get_current_pose().pose
         # generate a straight line path using a scaling 0 to 1 applied to the target pose differ to current pose
         waypoints = [current_pose, target_pose]
-        ee_step = step_resolution
 
         fraction = 0.0
         fix_itterations = 0
@@ -370,7 +356,7 @@ class UR5e(Manipulator):
             fix_itterations += 1
             if fix_itterations > max_i:  
                 rospy.logerr(f"Failed to find a plan after {max_i} iterations")
-                return None, 0.0 
+                exit(1)
 
         # check if the plan is valid with timestamp duplication
         path = [plan.joint_trajectory.points[0]]
@@ -440,3 +426,10 @@ class UR5e(Manipulator):
         display_trajectory.trajectory_start = self.robot.get_current_state()
         display_trajectory.trajectory.append(plan)
         self._display_trajectory_publisher.publish(display_trajectory)
+
+    def _visualise_pose_in_loop(self, pose):
+        rate = rospy.Rate(1)  # 1 Hz
+        while not rospy.is_shutdown():
+            print(f"Visualizing target pose: {pose.position.x, pose.position.y, pose.position.z}")
+            self._visualize_target_pose(pose, frame_id='world')
+            rate.sleep()
