@@ -39,8 +39,6 @@ class MissionPlanner:
 
     """
 
-
-
     def __init__(self) -> None:
         rospy.init_node("simple_ur5_controller", log_level=1, anonymous=True)
         rospy.loginfo("Initialising MissionPlanner")

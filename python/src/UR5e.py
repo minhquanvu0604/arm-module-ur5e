@@ -61,7 +61,7 @@ class UR5e(Manipulator):
         self._cur_js = self.group.get_current_joint_values()
 
         self._marker_pub = rospy.Publisher(
-            "visualization_marker", Marker, queue_size=10)
+            "/visualization_marker", Marker, queue_size=10)
 
         self._display_trajectory_publisher = rospy.Publisher(
             "/move_group/display_planned_path", DisplayTrajectory, queue_size=20)
@@ -162,21 +162,21 @@ class UR5e(Manipulator):
         joint_constraint.weight = 1
         constraints.joint_constraints.append(joint_constraint)
 
-        joint_constraint_03 = JointConstraint()
-        joint_constraint_03.joint_name = "wrist_2_joint"
-        joint_constraint_03.position = pi/2
-        joint_constraint_03.tolerance_above = 0.7
-        joint_constraint_03.tolerance_below = 0.7
-        joint_constraint_03.weight = 1
-        constraints.joint_constraints.append(joint_constraint_03)
+        # joint_constraint_03 = JointConstraint()
+        # joint_constraint_03.joint_name = "wrist_2_joint"
+        # joint_constraint_03.position = pi/2
+        # joint_constraint_03.tolerance_above = 0.7
+        # joint_constraint_03.tolerance_below = 0.7
+        # joint_constraint_03.weight = 1
+        # constraints.joint_constraints.append(joint_constraint_03)
 
-        joint_constraint_05 = JointConstraint()
-        joint_constraint_05.joint_name = "wrist_3_joint"
-        joint_constraint_05.position = self.group.get_current_joint_values()[5]
-        joint_constraint_05.tolerance_above = 3.14
-        joint_constraint_05.tolerance_below = 3.14
-        joint_constraint_05.weight = 1
-        constraints.joint_constraints.append(joint_constraint_05)
+        # joint_constraint_05 = JointConstraint()
+        # joint_constraint_05.joint_name = "wrist_3_joint"
+        # joint_constraint_05.position = self.group.get_current_joint_values()[5]
+        # joint_constraint_05.tolerance_above = 3.14
+        # joint_constraint_05.tolerance_below = 3.14
+        # joint_constraint_05.weight = 1
+        # constraints.joint_constraints.append(joint_constraint_05)
 
         self.constraints = constraints
         self.group.set_path_constraints(constraints)
@@ -198,7 +198,7 @@ class UR5e(Manipulator):
         @param: wait A bool to wait for the robot to reach the goal
         @returns: bool True if successful by comparing the goal and actual poses
         """
-        # self._visualise_1_point(pose)
+        # self._visualise_pose_in_loop(pose)
 
         self.group.set_pose_target(pose)
         self.group.go(wait=wait)
@@ -240,13 +240,18 @@ class UR5e(Manipulator):
         # TODO: Review a better way to do this
         # have to do this because the pose is in the camera frame
 
+
+        # self._visualise_pose_in_loop(pose)
+        # self._visualize_target_pose(pose, frame_id='world')
+
+
         if parent_frame_id != self._planning_frame:
             pose = self._get_transform_in_planning_frame(
                 pose, child_frame_id, parent_frame_id)
 
-        self._visualize_target_pose(pose, frame_id='world')
 
         plan, _ = self._gen_cartersian_path(pose)
+
 
         # self._display_traj(plan)
         self._execute_plan(plan, wait=True)
@@ -347,16 +352,19 @@ class UR5e(Manipulator):
 
         fraction = 0.0
         fix_itterations = 0
-        max_i = 50 # Maxium fix iterations
+        # max_i = 50 # Maxium fix iterations
+        # matching_tolerance = 0.7
         # Blocking loop to ensure the validity of the cartesian path
-        while fraction < 0.8:
-            plan, fraction = self.group.compute_cartesian_path(
-                waypoints, ee_step, jump_thresh, avoid_collisions=True, path_constraints=self.constraints)
+        # while fraction < matching_tolerance:
+        #     plan, fraction = self.group.compute_cartesian_path(
+        #         waypoints, ee_step, jump_thresh, avoid_collisions=True, path_constraints=self.constraints)
 
-            fix_itterations += 1
-            if fix_itterations > max_i:  
-                rospy.logerr(f"Failed to find a plan after {max_i} iterations")
-                exit(1)
+        #     fix_itterations += 1
+        #     if fix_itterations > max_i:  
+        #         rospy.logerr(f"Failed to find a plan after {max_i} iterations")
+        #         exit(1)
+        plan, fraction = self.group.compute_cartesian_path(
+                waypoints, ee_step, jump_thresh, avoid_collisions=True,) # path_constraints=self.constraints)
 
         # check if the plan is valid with timestamp duplication
         path = [plan.joint_trajectory.points[0]]

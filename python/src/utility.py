@@ -117,28 +117,15 @@ def pose_to_transformstamped(pose: Pose, child_frame_id: str, parent_frame_id: s
 
 
 def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], color=[0, 1, 0, 1]) -> Marker:
-
     marker = Marker()
 
     marker.header.frame_id = frame
     marker.header.stamp = rospy.Time.now()
 
-    # marker.type = type
-    # marker.id = 0
-    # marker.pose = pose
-
-    # marker.scale.x = scale[0]
-    # marker.scale.y = scale[1]
-    # marker.scale.z = scale[2]
-
-    # marker.color.r = color[0]
-    # marker.color.g = color[1]
-    # marker.color.b = color[2]
-    # marker.color.a = color[3]
-    marker.ns = "markers"
-    marker.id = 0
+    # marker.ns = "markers"
+    marker.id = 100
     marker.type = type
-    marker.action = Marker.ADD
+    # marker.action = Marker.ADD
     marker.pose = pose
 
     marker.scale.x = scale[0]
@@ -150,7 +137,7 @@ def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], colo
     marker.color.b = color[2]
     marker.color.a = color[3]
 
-    marker.lifetime = rospy.Duration()  # Marker never expires
+    # marker.lifetime = 10000
 
     return marker
 
