@@ -11,6 +11,8 @@ from moveit_commander.conversions import pose_to_list
 
 from math import pi, tau, dist, fabs, cos
 
+# Apple Picking
+WAYPOINT_PATH = "../../cfg/list_poses_trellis_rpy.json"
 
 def all_close(goal, actual, tolerance):
     """
@@ -158,3 +160,49 @@ def list_to_PoseStamped(pose: list, frame_id: str = "base_link_inertia") -> Pose
     ps.pose.orientation.w = ori_in_quat[3]
 
     return ps
+
+
+def extract_waypoints_quartenion(file): 
+    with open(file, 'r') as f:
+        config = json.load(f) 
+    waypoints = []
+    for waypoint in config["posePlanner"]["list"]:
+        pose = Pose()
+        pose.position.x = waypoint["x"]
+        pose.position.y = waypoint["y"]
+        pose.position.z = waypoint["z"]
+        pose.orientation.x = waypoint["qx"]
+        pose.orientation.y = waypoint["qy"]
+        pose.orientation.z = waypoint["qz"]
+        pose.orientation.w = waypoint["qw"]
+        waypoints.append(pose)
+    return waypoints
+
+
+def extract_waypoints_rpy(file): 
+    with open(file, 'r') as f:
+        config = json.load(f) 
+    waypoints = []
+    for waypoint in config["posePlanner"]["list"]:
+        pose = Pose()
+        pose.position.x = waypoint["x"]
+        pose.position.y = waypoint["y"]
+        pose.position.z = waypoint["z"]
+        
+        # Convert RPY to quaternion
+        roll = waypoint["roll"]
+        pitch = waypoint["pitch"]
+        yaw = waypoint["yaw"]
+        quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+        
+        pose.orientation.x = quaternion[0]
+        pose.orientation.y = quaternion[1]
+        pose.orientation.z = quaternion[2]
+        pose.orientation.w = quaternion[3]
+        
+        waypoints.append(pose)
+
+        print(f"[extract_waypoints_rpy] XYZ: {pose.position.x}, {pose.position.y}, {pose.position.z}")
+        print(f"[extract_waypoints_rpy] RPY: {roll}, {pitch}, {yaw}")
+
+    return waypoints

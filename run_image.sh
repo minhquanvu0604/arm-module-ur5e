@@ -4,7 +4,7 @@ docker run \
     --privileged \
     -e DISPLAY \
     --network host \
-    -e ROS_MASTER_URI=http://172.19.218.169:11311 \
+    -e ROS_MASTER_URI=http://localhost:11311 \
     -v /dev:/dev \
     -v /tmp/.X11-unix/:/tmp/.X11-unix \
     -v /home/$(whoami)/ros/apple_ws:/root/apple_ws \

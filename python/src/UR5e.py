@@ -30,8 +30,10 @@ MAX_ACC_SCALE_FACTOR = 0.1
 class UR5e():
     r"""
     A class to control the UR3e robot arm using moveit_commander.
+    Dependency includes MoveIt and ROS 
     """
 
+    # Joint values guess - aid the solver to come up with elegant solutions
     JOINT_TARGET_DEG = [0, -46.86, 44.32, -177.46, -90.16, 0.02]
     JOINT_TARGET_RAD = [math.radians(angle) for angle in JOINT_TARGET_DEG]
 

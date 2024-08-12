@@ -10,6 +10,21 @@ endif()
 find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   roscpp
+  rospy
+  std_msgs
+  geometry_msgs
+  message_generation
+)
+
+add_service_files(
+  FILES
+  MoveToPose.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
 )
 
 # Declare a catkin package

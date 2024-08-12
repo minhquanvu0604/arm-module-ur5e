@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-ur5e-moveit-config \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./ros_entrypoint.sh /
-RUN chmod +x /ros_entrypoint.sh
-ENTRYPOINT ["/ros_entrypoint.sh"]
+# COPY ./ros_entrypoint.sh /ros_entrypoint.sh
+# RUN chmod +x /ros_entrypoint.sh
+# ENTRYPOINT ["/ros_entrypoint.sh"]
 
 WORKDIR /root/apple_ws
-CMD ["/bin/bash"]
+CMD ["tail", "-f", "/dev/null"]

@@ -26,9 +26,8 @@ sudo apt-get install ros-noetic-ur5e-moveit-config
 ```
 
 # Launching UR5 model with base
-To be done
-## Launching Simulation
-To be done
+To be done: Modify urdf to add the base
+
 
 
 # Launching only the UR5 
@@ -72,13 +71,15 @@ Build Docker image
 ```bash
 docker build -t moveit_ur5_image -f docker/Dockerfile .
 ```
-Run the container
+Run the container. You will need to modify the bind mounting directory
 ```bash
 ./run_image.sh
 ```
 Open a iteractive shell inside the container (the ROS workspace inside the container is named apple_ws)
 ```bash
-docker exec -it moveit_ur5_container bash -c "source /opt/ros/noetic/setup.bash && source /root/apple_ws/devel/setup.bash && exec bash"
+docker exec -it moveit_ur5_container /bin/bash
+
+# docker exec -it moveit_ur5_container bash -c "source /opt/ros/noetic/setup.bash && source /root/apple_ws/devel/setup.bash && exec bash"
 ```
 Run the program with the above intructions as you normall do in you host OS
 
