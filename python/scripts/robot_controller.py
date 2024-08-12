@@ -10,7 +10,8 @@ if parent_dir not in sys.path:
 sys.path.append('/home/quanvu/ros/apple_ws/src/simple_ur5_controller/python')
 
 
-import numpy as np
+# import numpy as np
+import math
 from threading import Thread
 from enum import Enum
 from copy import deepcopy
@@ -18,7 +19,10 @@ import json
 
 import rospy
 import tf2_ros
+import tf.transformations
 from sensor_msgs.msg import JointState
+# from srv import MoveToPose, MoveToPoseResponse
+
 
 # Importing planner module
 from src.UR5e import UR5e
@@ -28,20 +32,23 @@ from geometry_msgs.msg import Pose
 
 
 CONTROL_RATE = 10  # Hz
-HOME_CONFIG = "home"
-UP_CONFIG = "up"
 
-WAYPOINT_PATH = "../../cfg/list_poses.json"
+# MoveIt
+# HOME_MOVEIT = "home"
+# UP_CONFIG = "up"
 
-class MissionPlanner:
+# Apple Picking
+WAYPOINT_PATH = "../../cfg/list_poses_trellis_rpy.json"
+
+class PoseTest:
     """
     To get sim groundtruth pose: rosrun tf tf_echo world tool0
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, goal_list:bool = True) -> None:
         rospy.init_node("simple_ur5_controller", log_level=1, anonymous=True)
-        rospy.loginfo("Initialising MissionPlanner")
+        rospy.loginfo("Initialising PoseTest")
         self._rate = rospy.Rate(CONTROL_RATE)
 
         # Initialize the UR3e controller
@@ -71,35 +78,55 @@ class MissionPlanner:
 
         rospy.on_shutdown(self.cleanup)
 
-        self.system_loop()
+
+        # Move to home position
+        self.robot.go_to_joint_goal(self.robot.JOINT_TARGET_RAD, wait=True)
+
+        # Main loop
+        if goal_list:
+            self.goal_list_main_loop()
+
+        else: # Using ROS service
+            self.service = rospy.Service('move_to_pose', MoveToPose, self.handle_move_to_pose)
+            rospy.loginfo("Robot controller service is ready.")
+            rospy.spin()
 
 
-    def system_loop(self) -> None:
-        # initial_config = [17.47, -85.7, 82.5, -86.4, -86.4, 10]
-
-        waypoints = MissionPlanner.extract_waypoints(WAYPOINT_PATH)
+    def goal_list_main_loop(self) -> None:
+        # waypoints = PoseTest.extract_waypoints_quartenion(WAYPOINT_PATH)
+        waypoints = PoseTest.extract_waypoints_rpy(WAYPOINT_PATH)
+    
         parent_frame_id = "world"
         goal_id = 0
-        for pose in waypoints:
-            print(f"[MissionPlanner] Start planning goal {goal_id}\n{pose}")
+        for pose_goal in waypoints:
+            print(f"[PoseTest] Start planning goal {goal_id}")
             # self.robot.go_to_pose_goal(pose, None, parent_frame_id)
-            self.robot.go_to_pose_goal_simple(pose)
-            print(f"[MissionPlanner] Goal {goal_id} completed")
+            self.robot.go_to_pose_goal_simple(pose_goal)
+            print(f"[PoseTest] Goal {goal_id} completed\n")
             goal_id += 1
 
 
+    def handle_move_to_pose(self, req):
+        pose_goal = req.pose
+
+        success = self.robot.go_to_pose_goal_simple(pose_goal)
+
+        response = MoveToPoseResponse()
+        response.success = success
+
+        return response
 
 
     def cleanup(self) -> None:
-        rospy.loginfo("[MissionPlanner] Cleaning up")
+        rospy.loginfo("[PoseTest] Cleaning up")
         # self._safety_thread.join()
         self.robot.shutdown()
         # self.collisions.remove_collision_object()
-        rospy.loginfo("[MissionPlanner] Clean-up completed")
+        rospy.loginfo("[PoseTest] Clean-up completed")
     
     
     @staticmethod
-    def extract_waypoints(file): 
+    def extract_waypoints_quartenion(file): 
         with open(file, 'r') as f:
             config = json.load(f) 
         waypoints = []
@@ -116,7 +143,35 @@ class MissionPlanner:
         return waypoints
     
 
+    @staticmethod
+    def extract_waypoints_rpy(file): 
+        with open(file, 'r') as f:
+            config = json.load(f) 
+        waypoints = []
+        for waypoint in config["posePlanner"]["list"]:
+            pose = Pose()
+            pose.position.x = waypoint["x"]
+            pose.position.y = waypoint["y"]
+            pose.position.z = waypoint["z"]
+            
+            # Convert RPY to quaternion
+            roll = waypoint["roll"]
+            pitch = waypoint["pitch"]
+            yaw = waypoint["yaw"]
+            quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+            
+            pose.orientation.x = quaternion[0]
+            pose.orientation.y = quaternion[1]
+            pose.orientation.z = quaternion[2]
+            pose.orientation.w = quaternion[3]
+            
+            waypoints.append(pose)
+
+            print(f"[extract_waypoints_rpy] XYZ: {pose.position.x}, {pose.position.y}, {pose.position.z}")
+            print(f"[extract_waypoints_rpy] RPY: {roll}, {pitch}, {yaw}")
+
+        return waypoints
 
 
 if __name__ == "__main__":
-    mp = MissionPlanner()
+    mp = PoseTest()

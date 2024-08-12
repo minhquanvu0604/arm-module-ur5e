@@ -2,11 +2,13 @@
 
 import sys
 import numpy as np
+import math
 from copy import deepcopy
-from abc import ABC, abstractmethod
 
 import tf2_ros
 import rospy
+
+import tf.transformations
 
 import moveit_commander
 from moveit_commander import RobotCommander, PlanningSceneInterface, MoveGroupCommander
@@ -21,29 +23,17 @@ from src.utility import *
 # Constants variables
 POS_TOL = 0.05  # m
 ORI_TOL = 0.05  # m
-MAX_VEL_SCALE_FACTOR = 0.5
-MAX_ACC_SCALE_FACTOR = 0.5
+MAX_VEL_SCALE_FACTOR = 0.1
+MAX_ACC_SCALE_FACTOR = 0.1
 
 
-class Manipulator(ABC):
-    @abstractmethod
-    def go_to_pose_goal(self, pose: Pose, wait=True):
-        pass
-
-    @abstractmethod
-    def stop(self):
-        pass
-
-    @abstractmethod
-    def shutdown(self):
-        pass
-
-
-class UR5e(Manipulator):
+class UR5e():
     r"""
     A class to control the UR3e robot arm using moveit_commander.
-
     """
+
+    JOINT_TARGET_DEG = [0, -46.86, 44.32, -177.46, -90.16, 0.02]
+    JOINT_TARGET_RAD = [math.radians(angle) for angle in JOINT_TARGET_DEG]
 
     def __init__(self) -> None:
         moveit_commander.roscpp_initialize(sys.argv)
@@ -200,12 +190,16 @@ class UR5e(Manipulator):
         """
         # self._visualise_pose_in_loop(pose)
 
+        # Set q guess
+        self.group.set_joint_value_target(UR5e.JOINT_TARGET_RAD)
+        # Set target
         self.group.set_pose_target(pose)
         self.group.go(wait=wait)
         self.group.stop()
         self.group.clear_pose_targets()
 
         cur_pose = self.group.get_current_pose().pose
+
         return all_close(pose, cur_pose, 0.001)
 
 
@@ -224,6 +218,19 @@ class UR5e(Manipulator):
         self.group.stop()
 
         cur_joint = self.group.get_current_joint_values()
+
+        # Print the current pose - [DEBUG]
+        cur_pose = self.group.get_current_pose().pose
+        orientation = cur_pose.orientation
+        qx = orientation.x
+        qy = orientation.y
+        qz = orientation.z
+        qw = orientation.w
+        roll, pitch, yaw = tf.transformations.euler_from_quaternion([qx, qy, qz, qw])
+        print(f"Current pose: {cur_pose}")
+        print(f"Orientation in RPY: roll={roll}, pitch={pitch}, yaw={yaw}")
+
+
         return all_close(joint_goal, cur_joint, 0.001)
 
 
