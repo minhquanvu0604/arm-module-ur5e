@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   MoveToPose.srv
+  PoseService.srv
 )
 
 generate_messages(

@@ -13,7 +13,7 @@ sys.path.append('/root/apple_ws/src/python')
 
 # import numpy as np
 import math
-from threading import Thread
+import threading
 from enum import Enum
 from copy import deepcopy
 
@@ -21,7 +21,10 @@ import rospy
 import tf2_ros
 import tf.transformations
 from sensor_msgs.msg import JointState
-# from srv import MoveToPose, MoveToPoseResponse
+
+from srv import MoveToPose, MoveToPoseResponse
+from hydra_utils.srv import PoseService, PoseServiceResponse
+
 
 
 # Importing planner module
@@ -54,6 +57,7 @@ class PoseTest:
         # @NOTE: is this needed?
         # self._system_halted = False
         # self._success = True
+        self.secure_data = threading.Lock()
 
         # @NOTE: no Collision at the moment
         # self.collisions = CollisionManager(self.robot.get_scene())
@@ -82,9 +86,11 @@ class PoseTest:
         # Main loop
         if goal_list:
             self.goal_list_main_loop()
-        # Using ROS service
+        # Using ROS service - integrate with hydra
         else: 
             self._service = rospy.Service('move_to_pose', MoveToPose, self.handle_move_to_pose)
+            self._pose_service = rospy.Service('mvps/arm_module/pose', PoseService, self.query_pose_callback)
+
             rospy.loginfo("Robot controller service is ready.")
             rospy.spin()
 
@@ -110,6 +116,32 @@ class PoseTest:
 
         response = MoveToPoseResponse()
         response.success = success
+
+        return response
+
+
+    def query_pose_callback(self, req):
+        self.secure_data.acquire()
+        try:
+            # pose = self.robot.get_current_pose()
+            pose = self.robot.group.get_current_pose().pose
+        finally:
+            self.secure_data.release()
+
+        # Extract translation and rotation (as quaternion) from the 4x4 matrix
+        response = PoseServiceResponse()
+        response.pose.header.frame_id = "map"
+        response.pose.header.stamp = rospy.Time.now()
+        response.pose.pose.position.x = pose[0, 3]
+        response.pose.pose.position.y = pose[1, 3]
+        response.pose.pose.position.z = pose[2, 3]
+        
+        # Convert the rotation part of the matrix to a quaternion
+        quaternion = tf.transformations.quaternion_from_matrix(pose)
+        response.pose.pose.orientation.x = quaternion[0]
+        response.pose.pose.orientation.y = quaternion[1]
+        response.pose.pose.orientation.z = quaternion[2]
+        response.pose.pose.orientation.w = quaternion[3]
 
         return response
 
