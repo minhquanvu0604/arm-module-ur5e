@@ -11,7 +11,7 @@ def move_robot_client():
     rospy.init_node('move_robot_client')
     rospy.wait_for_service('move_to_pose')
 
-    waypoints = utility.extract_waypoints_rpy(WAYPOINT_PATH)
+    waypoints = extract_waypoints_rpy(WAYPOINT_PATH)
     
     try:
         move_to_pose = rospy.ServiceProxy('move_to_pose', MoveToPose)

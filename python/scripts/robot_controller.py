@@ -16,7 +16,6 @@ import math
 from threading import Thread
 from enum import Enum
 from copy import deepcopy
-import json
 
 import rospy
 import tf2_ros
@@ -83,8 +82,8 @@ class PoseTest:
         # Main loop
         if goal_list:
             self.goal_list_main_loop()
-
-        else: # Using ROS service
+        # Using ROS service
+        else: 
             self._service = rospy.Service('move_to_pose', MoveToPose, self.handle_move_to_pose)
             rospy.loginfo("Robot controller service is ready.")
             rospy.spin()
@@ -92,7 +91,7 @@ class PoseTest:
 
     def goal_list_main_loop(self) -> None:
         # waypoints = PoseTest.extract_waypoints_quartenion(WAYPOINT_PATH)
-        waypoints = utility.extract_waypoints_rpy(WAYPOINT_PATH)
+        waypoints = extract_waypoints_rpy(WAYPOINT_PATH)
     
         parent_frame_id = "world"
         goal_id = 0

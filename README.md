@@ -57,9 +57,10 @@ Starting up RViz with a configuration including the MoveIt! Motion Planning plug
 
 ```roslaunch ur5e_moveit_config moveit_rviz.launch```
 
-Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to simple_ur5_controller/python/scripts/
+Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to simple_ur5_controller/python/scripts/. 
 
-```python3 reach_waypoints.py```
+**Main controller executable:** 
+```python3 robot_controller.py```
 
 
 # Docker 
