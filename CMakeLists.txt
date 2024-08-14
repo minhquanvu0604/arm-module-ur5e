@@ -16,12 +16,14 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
+# Add service files
 add_service_files(
   FILES
   MoveToPose.srv
   PoseService.srv
 )
 
+# Generate messages
 generate_messages(
   DEPENDENCIES
   std_msgs
@@ -29,7 +31,9 @@ generate_messages(
 )
 
 # Declare a catkin package
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
+)
 
 # Include directories
 include_directories(
@@ -37,9 +41,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+install(DIRECTORY python/src/
+        DESTINATION ${CATKIN_PACKAGE_PYTHON_DESTINATION}
+        FILES_MATCHING PATTERN "*.py")
 
-# Install launch files
-install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+file(GLOB_RECURSE SCRIPT_FILES python/scripts/*.py)
+catkin_install_python(PROGRAMS ${SCRIPT_FILES}
+                      DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

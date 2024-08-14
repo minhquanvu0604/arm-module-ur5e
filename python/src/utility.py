@@ -12,7 +12,11 @@ from moveit_commander.conversions import pose_to_list
 from math import pi, tau, dist, fabs, cos
 
 # Apple Picking
-WAYPOINT_PATH = "../../cfg/list_poses_trellis_rpy.json"
+import rospkg
+rospack = rospkg.RosPack()
+package_path = rospack.get_path('simple_ur5_controller')
+WAYPOINT_PATH = package_path + "/cfg/list_poses_trellis_rpy.json"
+
 
 def all_close(goal, actual, tolerance):
     """
@@ -37,7 +41,7 @@ def all_close(goal, actual, tolerance):
         x1, y1, z1, qx1, qy1, qz1, qw1 = pose_to_list(goal)
         # Euclidean distance
         d = dist((x1, y1, z1), (x0, y0, z0))
-        cos_phi_half = fabs(qx0 * qx1 + qy0 * qy1 + qz0 * qz1 + qw0 * qw1)
+        # cos_phi_half = fabs(qx0 * qx1 + qy0 * qy1 + qz0 * qz1 + qw0 * qw1)
         return d <= tolerance #and cos_phi_half >= cos(tolerance / 2.0)
 
     return True
@@ -182,6 +186,7 @@ def extract_waypoints_quartenion(file):
 def extract_waypoints_rpy(file): 
     with open(file, 'r') as f:
         config = json.load(f) 
+        
     waypoints = []
     for waypoint in config["posePlanner"]["list"]:
         pose = Pose()
@@ -201,8 +206,5 @@ def extract_waypoints_rpy(file):
         pose.orientation.w = quaternion[3]
         
         waypoints.append(pose)
-
-        print(f"[extract_waypoints_rpy] XYZ: {pose.position.x}, {pose.position.y}, {pose.position.z}")
-        print(f"[extract_waypoints_rpy] RPY: {roll}, {pitch}, {yaw}")
 
     return waypoints
