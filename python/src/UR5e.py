@@ -8,23 +8,17 @@ from copy import deepcopy
 import tf2_ros
 import rospy
 
-import tf.transformations
-
 import moveit_commander
 from moveit_commander import RobotCommander, PlanningSceneInterface, MoveGroupCommander
 from moveit_msgs.msg import RobotTrajectory, DisplayTrajectory, Constraints, JointConstraint, OrientationConstraint
-from sensor_msgs.msg import JointState
+
+from geometry_msgs.msg import Pose
+from visualization_msgs.msg import Marker
 
 # from src.gripper import Gripper
-from src.utility import *
+from src.utility import all_close, pose_to_transformstamped, transformstamped_to_pose, create_marker
 # from src.collision_manager import CollisionManager
 # from scipy.spatial.transform import Rotation as R
-
-# Constants variables
-POS_TOL = 0.05  # m
-ORI_TOL = 0.05  # m
-MAX_VEL_SCALE_FACTOR = 0.1
-MAX_ACC_SCALE_FACTOR = 0.1
 
 
 class UR5e():
@@ -32,6 +26,12 @@ class UR5e():
     A class to control the UR3e robot arm using moveit_commander.
     Dependency includes MoveIt and ROS 
     """
+
+    POS_TOL = 0.01  # m
+    ORI_TOL = 0.01  # m
+    TOL_CHECK = 0.02  # m
+    MAX_VEL_SCALE_FACTOR = 0.05
+    MAX_ACC_SCALE_FACTOR = 0.05
 
     # Joint values guess - aid the solver to come up with elegant solutions
     JOINT_TARGET_DEG = [0, -46.86, 44.32, -177.46, -90.16, 0.02]
@@ -60,9 +60,9 @@ class UR5e():
 
         # For lookup transform
         # TODO: check 
-        self._tf_buffer = tf2_ros.Buffer()
-        self._tf_listener = tf2_ros.TransformListener(self._tf_buffer)
-        self._tf_broadcaster = tf2_ros.TransformBroadcaster()
+        # self._tf_buffer = tf2_ros.Buffer()
+        # self._tf_listener = tf2_ros.TransformListener(self._tf_buffer)
+        # self._tf_broadcaster = tf2_ros.TransformBroadcaster()
 
         self._movegroup_setup()
 
@@ -79,10 +79,10 @@ class UR5e():
         self.group.set_planner_id("RRTConnect") # ompl_planning.yaml
         self.group.set_planning_time(20)
         self.group.set_num_planning_attempts(10)
-        self.group.set_goal_position_tolerance(POS_TOL)
-        self.group.set_goal_joint_tolerance(POS_TOL)
-        self.group.set_max_velocity_scaling_factor(MAX_VEL_SCALE_FACTOR)
-        self.group.set_max_acceleration_scaling_factor(MAX_ACC_SCALE_FACTOR)
+        self.group.set_goal_position_tolerance(UR5e.POS_TOL)
+        self.group.set_goal_joint_tolerance(UR5e.POS_TOL)
+        self.group.set_max_velocity_scaling_factor(UR5e.MAX_VEL_SCALE_FACTOR)
+        self.group.set_max_acceleration_scaling_factor(UR5e.MAX_ACC_SCALE_FACTOR)
 
         # self.init_path_constraints()
 
@@ -183,7 +183,7 @@ class UR5e():
  
 
     # ============ Robot control basic actions ===============================================================
-    def go_to_pose_goal_simple(self, pose: Pose, wait=True):
+    def go_to_pose_goal_simple(self, pose: Pose, wait=True, timeout=10):
         r"""
         Move the robot to the specified pose.
         @param: pose A Pose instance
@@ -201,11 +201,10 @@ class UR5e():
         self.group.clear_pose_targets()
 
         cur_pose = self.group.get_current_pose().pose
+        return all_close(pose, cur_pose, UR5e.TOL_CHECK)
 
-        return all_close(pose, cur_pose, 0.001)
 
-
-    def go_to_joint_goal(self, joint_goal, wait=True):
+    def go_to_joint_goal(self, joint_goal, wait=True, timeout=10):
         r"""
         Move the robot to the specified joint angles.
 
@@ -215,32 +214,31 @@ class UR5e():
         if not isinstance(joint_goal, list):
             rospy.logerr("Invalid joint angle")
             return False
-
+        
         self.group.go(joint_goal, wait=wait)
         self.group.stop()
 
-        cur_joint = self.group.get_current_joint_values()
-
         # Print the current pose - [DEBUG]
-        cur_pose = self.group.get_current_pose().pose
-        orientation = cur_pose.orientation
-        qx = orientation.x
-        qy = orientation.y
-        qz = orientation.z
-        qw = orientation.w
-        roll, pitch, yaw = tf.transformations.euler_from_quaternion([qx, qy, qz, qw])
-        print(f"Current pose: {cur_pose}")
-        print(f"Orientation in RPY: roll={roll}, pitch={pitch}, yaw={yaw}")
-
-
-        return all_close(joint_goal, cur_joint, 0.001)
+        # cur_pose = self.group.get_current_pose().pose
+        # orientation = cur_pose.orientation
+        # qx = orientation.x
+        # qy = orientation.y
+        # qz = orientation.z
+        # qw = orientation.w
+        # roll, pitch, yaw = tf.transformations.euler_from_quaternion([qx, qy, qz, qw])
+        # print(f"[go_to_joint_goal] Current pose: {cur_pose}")
+        # print(f"[go_to_joint_goal] Orientation in RPY: roll={roll}, pitch={pitch}, yaw={yaw}")
+        
+        cur_joint = self.group.get_current_joint_values()
+        
+        return all_close(joint_goal, cur_joint, UR5e.TOL_CHECK)
 
 
     def go_to_pose_goal(self, pose: Pose, child_frame_id, parent_frame_id):
         r"""
         Move the robot to the specified pose.
         Current expected behavior of this planner
-        go_to_pose_goal() then _execute_plan()
+        go_to_pose_goal() then execute_plan()
 
         @param: pose A Pose instance
         @param: wait A bool to wait for the robot to reach the goal
@@ -263,7 +261,7 @@ class UR5e():
 
 
         # self._display_traj(plan)
-        self._execute_plan(plan, wait=True)
+        self.execute_plan(plan, wait=True)
 
         # self.group.set_pose_target(pose)
         # self.group.go(wait=True)
@@ -275,7 +273,7 @@ class UR5e():
         return all_close(pose, cur_pose, 0.001)
 
 
-    def _execute_plan(self, plan: RobotTrajectory, wait=True):
+    def execute_plan(self, plan: RobotTrajectory, wait=True):
         r"""
         Execute the plan.
         @param: plan A RobotTrajectory instance
@@ -297,7 +295,11 @@ class UR5e():
 
     # ============ Template actions =================================================================================
     def go_to_target_pose_name(self, name):
-
+        """
+        MoveIt:
+        HOME_MOVEIT = "home"
+        UP_CONFIG = "up"
+        """
         self.group.set_named_target(name)
         self.group.go(wait=True)
 
@@ -329,7 +331,7 @@ class UR5e():
         if plan is None:
             return False
         
-        done = self._execute_plan(plan=plan, wait=True)
+        done = self.execute_plan(plan=plan, wait=True)
         return done
 
     # Gripper control
