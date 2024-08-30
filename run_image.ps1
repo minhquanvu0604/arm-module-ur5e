@@ -6,5 +6,5 @@ docker run `
     -e DISPLAY=host.docker.internal:0.0 `
     --network host `
     -e ROS_MASTER_URI=http://localhost:11311 `
-    -v "C:\PERSONAL DATA ROG\git\simple_ur5_controller:/root/apple_ws/src/simple_ur5_controller" `
+    -v "C:\PERSONAL DATA ROG\git\arm_module_ur5e:/root/apple_ws/src/arm_module_ur5e" `
     moveit_ur5_image:latest

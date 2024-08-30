@@ -14,7 +14,7 @@ from math import pi, tau, dist, fabs, cos
 # Apple Picking
 import rospkg
 rospack = rospkg.RosPack()
-package_path = rospack.get_path('simple_ur5_controller')
+package_path = rospack.get_path('arm_module_ur5e')
 WAYPOINT_PATH = package_path + "/cfg/list_poses_trellis_rpy.json"
 
 

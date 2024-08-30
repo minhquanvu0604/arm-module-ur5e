@@ -4,7 +4,7 @@ import rospy
 from moveit_commander import PlanningSceneInterface
 from geometry_msgs.msg import Pose, PoseStamped
 
-from src.utility import *
+from python.src.utility import *
 
 
 class CollisionManager:

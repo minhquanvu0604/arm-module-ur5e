@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>simple_ur5_controller</name>
+  <name>arm_module_ur5e</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="quanvu0604@gmail.com">quanvu</maintainer>

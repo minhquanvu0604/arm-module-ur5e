@@ -10,4 +10,4 @@ docker run \
     -v /home/$(whoami)/ros/apple_ws:/root/apple_ws \
     moveit_ur5_image:latest 
 
-# -v /home/git/simple_ur5_controller:/root/apple_ws/src/simple_ur5_controller \
+# -v /home/git/arm_module_ur5e:/root/apple_ws/src/arm_module_ur5e \

@@ -13,7 +13,7 @@
     https://github.com/tonydle/ur_onrobot/blob/feat/moveit/ur_onrobot/launch/ur_onrobot_rg_bringup.launch-->    
     
         
-    <arg name="robot_description_file" default="$(find simple_ur5_controller)/launch/load_ur_pillar.launch" />
+    <arg name="robot_description_file" default="$(find arm_module_ur5e)/launch/load_ur_pillar.launch" />
     
     <include file="$(find ur_robot_driver)/launch/$(arg robot_model)_bringup.launch" ns="ur" >
         <arg name="robot_ip" value="$(arg robot_ip)" />
@@ -50,6 +50,6 @@
     </node> -->
 
     <group if="$(arg rviz)">
-        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find simple_ur5_controller)/cfg/view_robot.rviz" required="true"/>
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_module_ur5e)/cfg/view_robot.rviz" required="true"/>
     </group>
 </launch>

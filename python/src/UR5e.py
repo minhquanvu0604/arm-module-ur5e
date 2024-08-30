@@ -16,7 +16,7 @@ from geometry_msgs.msg import Pose
 from visualization_msgs.msg import Marker
 
 # from src.gripper import Gripper
-from src.utility import all_close, pose_to_transformstamped, transformstamped_to_pose, create_marker
+from python.src.utility import all_close, pose_to_transformstamped, transformstamped_to_pose, create_marker
 # from src.collision_manager import CollisionManager
 # from scipy.spatial.transform import Rotation as R
 
@@ -30,8 +30,8 @@ class UR5e():
     POS_TOL = 0.01  # m
     ORI_TOL = 0.01  # m
     TOL_CHECK = 0.02  # m
-    MAX_VEL_SCALE_FACTOR = 0.05
-    MAX_ACC_SCALE_FACTOR = 0.05
+    MAX_VEL_SCALE_FACTOR = 0.1 #0.05
+    MAX_ACC_SCALE_FACTOR = 0.1 #0.05
 
     # Joint values guess - aid the solver to come up with elegant solutions
     JOINT_TARGET_DEG = [0, -46.86, 44.32, -177.46, -90.16, 0.02]

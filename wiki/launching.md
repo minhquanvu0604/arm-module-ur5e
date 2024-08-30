@@ -16,6 +16,14 @@ Starting up RViz with a configuration including the MoveIt! Motion Planning plug
 ```roslaunch ur5e_moveit_config moveit_rviz.launch```
 
 
+- Find your computer's IP
+
+- Add that IP to Installation/URCap
+
+- Add new program in Program/URCap
+  
+
+
 ## Launching Simulation
 Bring up the simulated robot in Gazebo
 
@@ -29,6 +37,6 @@ Starting up RViz with a configuration including the MoveIt! Motion Planning plug
 
 ```roslaunch ur5e_moveit_config moveit_rviz.launch```
 
-Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to simple_ur5_controller/python/scripts/
+Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to arm_module_ur5e/python/scripts/
 
-```python3 reach_waypoints.py```
+```python3 run_robot_controller.py```

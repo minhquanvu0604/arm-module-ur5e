@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(simple_ur5_controller)
+project(arm_module_ur5e)
 
 # Add compile options
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -7,6 +7,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # Find dependencies
+find_package(PythonLibs REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning_interface
   roscpp

@@ -37,7 +37,7 @@
     safety_k_position:=$(arg safety_k_position)" 
     /> -->
 
-  <param name="robot_description" command="$(find xacro)/xacro '$(find simple_ur5_controller)/urdf/ur_pillar.xacro'
+  <param name="robot_description" command="$(find xacro)/xacro '$(find arm_module_ur5e)/urdf/ur_pillar.xacro'
   
     robot_model:=$(arg robot_model)
 

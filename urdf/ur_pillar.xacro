@@ -3,7 +3,7 @@
 
   <!-- import macro -->
   <xacro:include filename="$(find ur_description)/urdf/inc/ur5e_macro.xacro"/>
-  <xacro:include filename="$(find simple_ur5_controller)/urdf/pillar_macro.xacro"/>
+  <xacro:include filename="$(find arm_module_ur5e)/urdf/pillar_macro.xacro"/>
   
   <!-- <xacro:arg name="cable_connector" default="true"/> -->
   <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg robot_model)/joint_limits.yaml"/>

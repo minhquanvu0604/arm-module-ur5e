@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import sys
-sys.path.append('/home/quanvu/ros/apple_ws/src/simple_ur5_controller/python')
-sys.path.append('/root/apple_ws/src/python')
+sys.path.append('/home/quanvu/ros/apple_ws/src/arm_module_ur5e/python')
+syross.path.append('/root/apple_ws/src/python')
 
 import rospy
 from geometry_msgs.msg import Pose
-from simple_ur5_controller.srv import MoveToPose, MoveToPoseRequest
+from arm_module_ur5e.srv import MoveToPose, MoveToPoseRequest
 
 from src.utility import extract_waypoints_rpy, WAYPOINT_PATH
 

@@ -1,28 +1,24 @@
 #! /usr/bin/env python3
 
 import os, sys
-
-# Add path
-current_dir = os.path.dirname(__file__) # dir scripts
-parent_dir = os.path.dirname(current_dir)  # dir python
-if parent_dir not in sys.path:
-    sys.path.append(parent_dir)
+top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, top_level_package)
 
 import threading
 from copy import deepcopy
+import yaml
 
 import rospy
 import tf2_ros
 import tf.transformations
 from sensor_msgs.msg import JointState
 
-from simple_ur5_controller.srv import MoveToPose, MoveToPoseResponse
-from simple_ur5_controller.srv import PoseService, PoseServiceResponse
+from arm_module_ur5e.srv import MoveToPose, MoveToPoseResponse
+from arm_module_ur5e.srv import PoseService, PoseServiceResponse
 
-# Importing planner module
-from src.UR5e import UR5e
-from src.collision_manager import CollisionManager
-from src.utility import extract_waypoints_rpy, WAYPOINT_PATH
+from python.src.UR5e import UR5e
+from python.src.collision_manager import CollisionManager
+from python.src.utility import extract_waypoints_rpy, WAYPOINT_PATH
 from geometry_msgs.msg import Pose
 
 
@@ -32,9 +28,15 @@ class RobotController:
     """
     RATE = 10  # Hz
 
-    def __init__(self, ros_service:bool = True) -> None:
-        rospy.init_node("simple_ur5_controller", log_level=1, anonymous=True)
+    def __init__(self, cfg) -> None:
+
+        rospy.init_node("arm_module_ur5e", log_level=1, anonymous=True)
         rospy.loginfo("Initialising RobotController")
+
+        # Configs
+        goal_pose_ros_service = cfg['goal_pose_ros_service']
+        current_pose_ros_service = cfg['current_pose_ros_service']
+
         self._rate = rospy.Rate(RobotController.RATE)
 
         # Initialize the UR3e controller
@@ -69,20 +71,22 @@ class RobotController:
         print("[RobotController] Moving to home position")
         self.robot.go_to_joint_goal(self.robot.JOINT_TARGET_RAD, wait=True)
         print("[RobotController] Moved to home position")
-
-        # Main loop
-        if not ros_service:
-            self.goal_list_main_loop()
-        # Using ROS service - integrate with hydra
-        else: 
-            self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
+            
+        if current_pose_ros_service:
             self._pose_service = rospy.Service('mvps/arm_module/query_data', PoseService, self._query_pose_callback)
+            rospy.loginfo("[RobotController] Service to query current pose is ready.")
 
-            rospy.loginfo("[RobotController] Robot controller service is ready.")
-            rospy.spin()
+        if goal_pose_ros_service:
+            self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
+            rospy.loginfo("[RobotController] Service to receive goal pose is ready.")   
+        else:
+            self._control_thread = threading.Thread(target=self._read_goal_list_execute)
+            self._control_thread.start()
+
+        rospy.spin()
 
 
-    def goal_list_main_loop(self) -> None:
+    def _read_goal_list_execute(self) -> None:
         # waypoints = RobotController.extract_waypoints_quartenion(WAYPOINT_PATH)
         waypoints = extract_waypoints_rpy(WAYPOINT_PATH)
     
@@ -111,7 +115,8 @@ class RobotController:
     def _query_pose_callback(self, req):
         self._secure_data.acquire()
         try:
-            # Obtain the current pose (which is a PoseStamped object)
+            # Obtain the current pose (which is a PoseStamped object
+            # IMPORTANT: this in in base_link frame, while ing UR teach pendant Move tab, frame Base shows XYZRPY in base frame
             pose_stamped = self.robot.group.get_current_pose()
         finally:
             self._secure_data.release()
@@ -133,4 +138,12 @@ class RobotController:
 
 
 if __name__ == "__main__":
-    mp = RobotController()
+
+    yaml_file = '/home/quanvu/git/arm-module-ur5e/cfg/robot_controller_config.yaml'
+    with open(yaml_file, 'r') as file:
+        cfg = yaml.safe_load(file)
+
+    try:    
+        mp = RobotController(cfg)
+    except rospy.ROSInterruptException:
+        pass
