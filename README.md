@@ -32,3 +32,6 @@ move_group.get_current_pose()
 ```
 
 get_current_pose() returns pose in base_link frame, while ing UR teach pendant Move tab, frame Base shows XYZRPY in base frame
+
+## MVPS Integration
+This project integrates with MVPS - private repo, which is an active perception pipeline for reconstruction. [Document here](wiki/mvps_integration.md).

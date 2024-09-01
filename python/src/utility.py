@@ -15,7 +15,7 @@ from math import pi, tau, dist, fabs, cos
 import rospkg
 rospack = rospkg.RosPack()
 package_path = rospack.get_path('arm_module_ur5e')
-WAYPOINT_PATH = package_path + "/cfg/list_poses_trellis_rpy.json"
+WAYPOINT_PATH = package_path + "/cfg/list_poses_ur5e_demo.json"
 
 
 def all_close(goal, actual, tolerance):
