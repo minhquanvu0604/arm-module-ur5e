@@ -15,5 +15,5 @@
 
 ## D435 Mount
 <p align="center">
-    <img style="width: 30%;" alt="Object near camera" src="images/d435_mount.png">
+    <img style="width: 50%;" alt="Object near camera" src="images/d435_mount.png">
 </p>

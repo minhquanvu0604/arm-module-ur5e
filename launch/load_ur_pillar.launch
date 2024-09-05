@@ -9,10 +9,10 @@
   <arg name="cable_connector" default="true" /> -->
 
   <!--ur parameters files -->
-  <arg name="joint_limit_params" default="$(find ur_description)/config/$(arg robot_model)/joint_limits.yaml" />
-  <arg name="kinematics_params" default="$(find ur_description)/config/$(arg robot_model)/default_kinematics.yaml" />
-  <arg name="physical_params" default="$(find ur_description)/config/$(arg robot_model)/physical_parameters.yaml" />
-  <arg name="visual_params" default="$(find ur_description)/config/$(arg robot_model)/visual_parameters.yaml" />
+  <arg name="joint_limit_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/joint_limits.yaml" />
+  <arg name="kinematics_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/default_kinematics.yaml" />
+  <arg name="physical_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/physical_parameters.yaml" />
+  <arg name="visual_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/visual_parameters.yaml" />
 
   <!--common parameters -->
   <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />

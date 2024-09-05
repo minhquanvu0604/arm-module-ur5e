@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="pillar">
+
+    <xacro:macro name="pillar">
+        <!-- platform link definition -->
+        <link name="platform">
+                <!-- Visual properties of the platform -->
+                <visual>
+                    <geometry>
+                            <box size="1.2 0.585 0.174"/> <!-- Size in meters WxDxH -->
+                    </geometry>
+                    <material name="platform_color">
+                            <color rgba="0.5 0.5 0.5 1"/> <!-- Grey color; adjust as needed -->
+                    </material>
+                    <origin xyz="0 0 0.087" rpy="0 0 0"/> <!-- Adjusted to represent center of the box with respect to platform's origin at the bottom -->
+                </visual>
+
+                <!-- Collision properties of the platform -->
+                <collision>
+                    <geometry>
+                            <box size="1.2 0.585 0.174"/>
+                    </geometry>
+                    <origin xyz="0 0 0.087" rpy="0 0 0"/> <!-- Same adjustment for the collision model -->
+                </collision>
+
+                <!-- Inertial properties of the platform. -->
+                <inertial>
+                    <mass value="50.0"/> <!-- Placeholder mass -->
+                    <origin xyz="0.6 0.293 0.174" rpy="0 0 0"/> <!-- Center of the platform for inertia -->
+                    <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/> <!-- Placeholder inertia -->
+                </inertial>
+        </link>
+
+        <!-- pillar link definition -->
+        <link name="pillar">
+                <!-- Visual properties of the pillar -->
+                <visual>
+                    <geometry>
+                            <cylinder radius="0.080" length="0.470"/> <!-- Size in meters R x H -->
+                    </geometry>
+                    <material name="pillar_color">
+                            <color rgba="0.5 0.5 0.5 1"/> <!-- Grey color; adjust as needed -->
+                    </material>
+                    <origin xyz="0 0 0.235" rpy="0 0 0"/> <!-- Adjusted to represent center of the cylinder with respect to pillar's origin at the bottom -->
+                </visual>
+
+                <!-- Collision properties of the pillar -->
+                <collision>
+                    <geometry>
+                            <cylinder radius="0.080" length="0.470"/>
+                    </geometry>
+                    <origin xyz="0 0 0.235" rpy="0 0 0"/> <!-- Same adjustment for the collision model -->
+                </collision>
+
+                <!-- Inertial properties of the pillar. -->
+                <inertial>
+                    <mass value="50.0"/> <!-- Placeholder mass -->
+                    <origin xyz="0 0 0.235" rpy="0 0 0"/> <!-- Center of the pillar for inertia -->
+                    <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/> <!-- Placeholder inertia -->
+                </inertial>
+        </link>
+
+        <!-- Joint definition between platform and pillar -->
+        <joint name="platform_to_pillar_joint" type="fixed">
+                <parent link="platform"/>
+                <child link="pillar"/>
+                <origin xyz="-0.363 0 0.174" rpy="0 0 0"/> <!-- Position at the top of the platform -->
+        </joint>
+ 
+        <!-- table link definition -->
+        <link name="table">
+                <!-- Visual properties of the table -->
+                <visual>
+                    <geometry>
+                            <box size="0.740 0.585 0.460"/> <!-- Size in meters WxDxH -->
+                    </geometry>
+                    <material name="table_color">
+                            <color rgba="0.5 0.5 0.5 1"/> <!-- Grey color; adjust as needed -->
+                    </material>
+                    <origin xyz="0 0 -0.230" rpy="0 0 0"/> <!-- Adjusted to represent center of the box with respect to table's origin at the top -->
+                </visual>
+
+                <!-- Collision properties of the table -->
+                <collision>
+                    <geometry>
+                            <box size="0.740 0.585 0.460"/>
+                    </geometry>
+                    <origin xyz="0 0 -0.230" rpy="0 0 0"/> <!-- Same adjustment for the collision model -->
+                </collision>
+
+                <!-- Inertial properties of the table. -->
+                <inertial>
+                    <mass value="50.0"/> <!-- Placeholder mass -->
+                    <origin xyz="0 0 -0.230" rpy="0 0 0"/> <!-- Center of the table for inertia -->
+                    <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/> <!-- Placeholder inertia -->
+                </inertial>
+        </link>
+
+        <!-- Joint definition between platform and table -->
+        <joint name="platform_to_table_joint" type="fixed">
+                <parent link="platform"/>
+                <child link="table"/>
+                <origin xyz="0.230 0 0.634" rpy="0 0 0"/> <!-- Position at the bottom of the platform -->
+        </joint>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="$(arg robot_model)_pillar">
+
+  <!-- import macro -->
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/ur5e_macro.xacro"/>
+  <xacro:include filename="$(find arm_module_ur5e)/urdf/pillar_macro.xacro"/>
+  
+  <!-- <xacro:arg name="cable_connector" default="true"/> -->
+  <xacro:arg name="joint_limit_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/joint_limits.yaml"/>
+  <xacro:arg name="kinematics_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/default_kinematics.yaml"/>
+  <xacro:arg name="physical_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/physical_parameters.yaml"/>
+  <xacro:arg name="visual_params" default="$(find arm_module_ur5e_description)/config/$(arg robot_model)/visual_parameters.yaml"/>
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+
+  <xacro:ur5e_robot prefix="" />
+
+  <xacro:pillar/>
+
+  <!-- Joint definition between pillar and base_link -->
+  <joint name="pillar_to_base_joint" type="fixed">
+          <parent link="pillar"/>
+          <child link="base_link"/>
+          <origin xyz="0 0 0.470" rpy="0 0 ${-pi/2}"/> <!-- Position at the top of the pillar -->
+  </joint>
+
+</robot>

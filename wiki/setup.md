@@ -7,7 +7,7 @@ You can either install dependencies directly to your host OS using apt, or check
 sudo apt install ros-noetic-ur-robot-driver
 ```
 
-- Control in Gazebo Simulation - ur_gazebo
+- Control in Gazebo Simulation - arm_module_gazebo
 ```bash
 sudo apt-get install ros-noetic-ur-gazebo
 ```
@@ -17,7 +17,7 @@ sudo apt-get install ros-noetic-ur-gazebo
 sudo apt install ros-noetic-moveit
 ```
 
-- MoveIt! Config
+- MoveIt! Config. Source code can be found on https://github.com/ros-industrial/universal_robot/tree/noetic-devel/arm_module_ur5e_moveit_config
 ```bash
 sudo apt-get install ros-noetic-ur5e-moveit-config
 ```
