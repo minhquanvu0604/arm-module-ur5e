@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <!-- Define the Xacro macro for Gazebo components -->
+  <xacro:macro name="realsense_camera_gazebo" params="prefix">
+
+    <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/realsense_camera_marco.xacro"/>
+
+    <!-- Include the camera description -->
+    <xacro:realsense_camera prefix=""/>
+
+    <!-- Gazebo plugin for the camera sensor -->
+    <gazebo>
+      <sensor type="camera" name="${prefix}camera_sensor">
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.01</near>
+            <far>100.0</far>
+          </clip>
+        </camera>
+        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30.0</updateRate>
+          <cameraName>camera</cameraName>
+          <imageTopicName>camera/image_raw</imageTopicName>
+          <cameraInfoTopicName>camera/camera_info</cameraInfoTopicName>
+          <frameName>${prefix}camera_link</frameName>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+</robot>

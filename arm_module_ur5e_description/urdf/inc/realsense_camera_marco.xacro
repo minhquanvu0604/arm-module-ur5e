@@ -1,26 +1,32 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <!-- Define the Xacro macro -->
+  <!-- Define the Xacro macro for robot description -->
   <xacro:macro name="realsense_camera" params="prefix">
 
     <!-- Define the camera mount link -->
     <link name="${prefix}camera_mount">
+      <!-- Visual Representation -->
       <visual>
         <geometry>
-          <box size="0.05 0.05 0.02"/>
+          <!-- Use the mesh for visual representation, scaled down 1000 times -->
+          <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="black"/>
       </visual>
+
+      <!-- Collision Representation -->
       <collision>
         <geometry>
-          <box size="0.05 0.05 0.02"/>
+          <!-- Use the same mesh for collision -->
+          <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
         </geometry>
       </collision>
+
       <inertial>
         <mass value="0.1"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
       </inertial>
     </link>
 
@@ -28,7 +34,7 @@
     <joint name="${prefix}tool0_to_camera_mount" type="fixed">
       <parent link="tool0"/>
       <child link="${prefix}camera_mount"/>
-      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <origin xyz="0 0 0.001" rpy="0 0 0"/>
     </joint>
 
     <!-- Define the camera link -->
@@ -57,32 +63,6 @@
       <child link="${prefix}camera_link"/>
       <origin xyz="0 0 0.05" rpy="0 0 0"/>
     </joint>
-
-    <!-- Gazebo plugin for the camera sensor -->
-    <gazebo>
-      <sensor type="camera" name="${prefix}camera_sensor">
-        <camera>
-          <horizontal_fov>1.047</horizontal_fov>
-          <image>
-            <width>640</width>
-            <height>480</height>
-            <format>R8G8B8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>100.0</far>
-          </clip>
-        </camera>
-        <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-          <alwaysOn>true</alwaysOn>
-          <updateRate>30.0</updateRate>
-          <cameraName>camera</cameraName>
-          <imageTopicName>camera/image_raw</imageTopicName>
-          <cameraInfoTopicName>camera/camera_info</cameraInfoTopicName>
-          <frameName>${prefix}camera_link</frameName>
-        </plugin>
-      </sensor>
-    </gazebo>
 
   </xacro:macro>
 </robot>

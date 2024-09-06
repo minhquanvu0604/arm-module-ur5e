@@ -37,7 +37,7 @@
   <!--
     WILL NEED TO INCLUDE GAZEBO 
   -->
-  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/realsense_camera_marco.xacro"/>
+  <xacro:include filename="$(find arm_module_gazebo)/urdf/inc/realsense_camera_gazebo_macro.xacro"/>
 
 
   <!--Declare arguments -->
@@ -76,7 +76,7 @@
   <xacro:pillar/>
 
   <!-- Instantiate the camera -->
-  <xacro:realsense_camera prefix=""/>
+  <xacro:realsense_camera_gazebo prefix=""/>
 
 
   <!-- Attach the components together -->
