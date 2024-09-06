@@ -39,13 +39,31 @@ aluminum peripherial evaluation case.
 	  <color rgba="0.5 0.5 0.5 1"/>
     </material>
 
+    <!-- Attach back of the camera to the mount -->
+    <joint name="${name}_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/> <!-- camera_mount -->
+      <child link="${name}_back_mounting_frame" />
+    </joint>
+
+    <!-- Create a link in the middle of two back mounting holes -->
+    <link name="${name}_back_mounting_frame"/>
+
+    <!-- Transfrom the back mounting frame to the bottom screw -->
+    <joint name="back_mounting_joint" type="fixed">
+      <origin xyz="0.0105 0 -0.0125" rpy="0 0 0"/>
+      <parent link="${name}_back_mounting_frame"/>
+      <child link="${name}_bottom_screw_frame"/>
+    </joint>
+
 
     <!-- camera body, with origin at bottom screw mount -->
-    <joint name="${name}_joint" type="fixed">
+    <!-- <joint name="${name}_joint" type="fixed">
       <xacro:insert_block name="origin" />
       <parent link="${parent}"/>
       <child link="${name}_bottom_screw_frame" />
-    </joint>
+    </joint> -->
+
     <link name="${name}_bottom_screw_frame"/>
 
     <joint name="${name}_link_joint" type="fixed">

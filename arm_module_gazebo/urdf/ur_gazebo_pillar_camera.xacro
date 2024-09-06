@@ -22,6 +22,7 @@
     required '.xacro' files, instantiate the models (ie: call the macros) and
     connect everything by adding the appropriate joints.
   -->
+  <xacro:property name="M_PI" value="3.1415926535897931" />
 
   <!--
     Import main macro.
@@ -29,18 +30,10 @@
     NOTE: this imports the Gazebo-wrapper main macro, NOT the regular
           xacro macro (which is hosted by ur_description).
   -->
-  <!-- <xacro:include filename="$(find arm_module_gazebo)/urdf/ur_gazebo_pillar_camera_macro.xacro"/> -->
   <xacro:include filename="$(find ur_gazebo)/urdf/ur_macro.xacro"/>
-
-  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/pillar_macro.xacro"/>
-
-  <!-- <xacro:include filename="$(find arm_module_gazebo)/urdf/inc/random_camera_gazebo_macro.xacro"/> -->
-
-  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/_d435.urdf.xacro" />
-  <!-- <xacro:include filename="$(find arm_module_ur5e_description)/urdf/_d435.urdf.xacro" /> -->
   
-
-
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/pillar_macro.xacro"/>
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/_d435.urdf.xacro" />
 
   <!--Declare arguments -->
   <xacro:arg name="joint_limit_params" default=""/>
@@ -73,7 +66,7 @@
     safety_pos_margin="$(arg safety_pos_margin)"
     safety_k_position="$(arg safety_k_position)"
   />
-
+  
   <!-- Instantiate the pillar -->
   <xacro:pillar/>
 
@@ -119,8 +112,7 @@
   
   <!-- Instantiate the D435 camera -->
   <xacro:sensor_d435 name="camera" topics_ns="arm_module_camera" parent="camera_mount">
-    <!-- Define the origin where the camera will be attached -->
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <origin xyz="0 -0.045 0.02" rpy="${M_PI/2} ${-M_PI/2} 0"/>
   </xacro:sensor_d435>
 
 
