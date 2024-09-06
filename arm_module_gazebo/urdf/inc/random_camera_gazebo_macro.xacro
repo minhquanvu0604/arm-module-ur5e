@@ -4,7 +4,7 @@
   <!-- Define the Xacro macro for Gazebo components -->
   <xacro:macro name="realsense_camera_gazebo" params="prefix">
 
-    <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/realsense_camera_marco.xacro"/>
+    <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/random_camera_marco.xacro"/>
 
     <!-- Include the camera description -->
     <xacro:realsense_camera prefix=""/>
