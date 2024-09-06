@@ -43,6 +43,8 @@ class UR5e():
         self.robot = RobotCommander()
         self.scene = PlanningSceneInterface()
         self.group = MoveGroupCommander("manipulator")
+        self.group.set_pose_reference_frame("base_link")
+
 
         # self._gripper = Gripper()
         self.constraints = Constraints()
@@ -66,8 +68,12 @@ class UR5e():
 
         self._movegroup_setup()
 
+        rospy.logdebug(f"=== UR5E CONFIGURATION ===")
         rospy.logdebug(f"============ Planning frame: {self._planning_frame}")
         rospy.logdebug(f"============ End effector link: {self._eef_link}")
+        rospy.logdebug(f"============ Pose reference frame: {self.group.get_pose_reference_frame()}")
+
+        raise NotImplementedError("This class is not yet implemented")
 
 
     def _movegroup_setup(self):

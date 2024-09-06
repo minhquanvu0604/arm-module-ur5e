@@ -30,5 +30,11 @@ move_group.get_current_pose()
 
 get_current_pose() returns pose in base_link frame, while ing UR teach pendant Move tab, frame Base shows XYZRPY in base frame
 
+In CHANGELOG.rst:
+"Note that 'base' is essentially 'base_link' but rotated by 180
+  degrees over the Z-axis. This is necessary as the visual and
+  collision geometries appear to also have their origins rotated
+  180 degrees wrt the real robot."
+
 ## MVPS Integration
 This project integrates with MVPS - private repo, which is an active perception pipeline for reconstruction. [Document here](wiki/mvps_integration.md).

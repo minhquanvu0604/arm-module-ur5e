@@ -29,7 +29,16 @@
     NOTE: this imports the Gazebo-wrapper main macro, NOT the regular
           xacro macro (which is hosted by ur_description).
   -->
-  <xacro:include filename="$(find arm_module_gazebo)/urdf/ur_gazebo_pillar_camera_macro.xacro"/>
+  <!-- <xacro:include filename="$(find arm_module_gazebo)/urdf/ur_gazebo_pillar_camera_macro.xacro"/> -->
+  <xacro:include filename="$(find ur_gazebo)/urdf/ur_macro.xacro"/>
+
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/pillar_macro.xacro"/>
+
+  <!--
+    WILL NEED TO INCLUDE GAZEBO 
+  -->
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/realsense_camera_marco.xacro"/>
+
 
   <!--Declare arguments -->
   <xacro:arg name="joint_limit_params" default=""/>
@@ -63,20 +72,26 @@
     safety_k_position="$(arg safety_k_position)"
   />
 
-  <!--
-    Attach the Gazebo model to Gazebo's world frame.
+  <!-- Instantiate the pillar -->
+  <xacro:pillar/>
 
-    Note: if you're looking to integrate a UR into a larger scene and need
-    to add EEFs or other parts, DO NOT change this file or the 'world' link
-    here. Create a NEW xacro instead and decide whether you need to add
-    a 'world' link there.
-  -->
-  <!-- <link name="world"/>
+  <!-- Instantiate the camera -->
+  <xacro:realsense_camera prefix=""/>
+
+
+  <!-- Attach the components together -->
+  <link name="world"/>
   <joint name="world_joint" type="fixed">
     <parent link="world"/>
-    <child link="pillar"/>
+    <child link="platform"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint> -->
+  </joint>
+
+  <joint name="pillar_to_base_joint" type="fixed">
+          <parent link="pillar"/>
+          <child link="base_link"/>
+          <origin xyz="0 0 0.470" rpy="0 0 ${-pi/2}"/> <!-- Position at the top of the pillar -->
+  </joint>
 
   <link name="tool0_controller"/>
   <joint name="tool_controller_fake_joint" type="fixed">
@@ -84,4 +99,5 @@
     <child link="tool0_controller"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
+
 </robot>

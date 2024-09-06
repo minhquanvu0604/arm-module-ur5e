@@ -76,8 +76,6 @@ arm_module_gazebo/urdf/ur_gazebo_pillar_camera.xacro - equivalent to ur.xacro
 
 
 
-
-
 ## Launching only the UR5 
 This is the default launch set up provided by the original universal_robot package
 ### Launching Real Hardware
@@ -118,13 +116,13 @@ roslaunch ur_gazebo ur5e_bringup.launch
 Setting up the MoveIt! nodes to allow motion planning
 
 ```bash
-roslaunch arm_module_ur5e_moveit_config moveit_planning_execution.launch sim:=true
+roslaunch ur5e_moveit_config moveit_planning_execution.launch sim:=true
 ```
 
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 
 ```bash
-roslaunch arm_module_ur5e_moveit_config moveit_rviz.launch
+roslaunch ur5e_moveit_config moveit_rviz.launch
 ```
 
 Launch the test node to go through a set of waypoints in cfg/list_poses.json. First cd to arm_module_ur5e/python/scripts/
