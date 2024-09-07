@@ -32,15 +32,29 @@
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="fixed_base" type="fixed" parent_frame="world" child_link="base_link" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
-    <disable_collisions link1="base_link_inertia" link2="shoulder_link" reason="Adjacent" />
-    <disable_collisions link1="base_link_inertia" link2="upper_arm_link" reason="Never" />
-    <disable_collisions link1="base_link_inertia" link2="wrist_1_link" reason="Never" />
-    <disable_collisions link1="forearm_link" link2="upper_arm_link" reason="Adjacent" />
-    <disable_collisions link1="forearm_link" link2="wrist_1_link" reason="Adjacent" />
-    <disable_collisions link1="shoulder_link" link2="upper_arm_link" reason="Adjacent" />
-    <disable_collisions link1="shoulder_link" link2="wrist_1_link" reason="Never" />
-    <disable_collisions link1="shoulder_link" link2="wrist_2_link" reason="Never" />
-    <disable_collisions link1="wrist_1_link" link2="wrist_2_link" reason="Adjacent" />
-    <disable_collisions link1="wrist_1_link" link2="wrist_3_link" reason="Never" />
-    <disable_collisions link1="wrist_2_link" link2="wrist_3_link" reason="Adjacent" />
+    <disable_collisions link1="base_link_inertia" link2="pillar" reason="Adjacent"/>
+    <disable_collisions link1="base_link_inertia" link2="platform" reason="Never"/>
+    <disable_collisions link1="base_link_inertia" link2="shoulder_link" reason="Adjacent"/>
+    <disable_collisions link1="base_link_inertia" link2="table" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="camera_mount" reason="Adjacent"/>
+    <disable_collisions link1="camera_link" link2="wrist_1_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="wrist_2_link" reason="Never"/>
+    <disable_collisions link1="camera_link" link2="wrist_3_link" reason="Never"/>
+    <disable_collisions link1="camera_mount" link2="wrist_1_link" reason="Never"/>
+    <disable_collisions link1="camera_mount" link2="wrist_2_link" reason="Never"/>
+    <disable_collisions link1="camera_mount" link2="wrist_3_link" reason="Adjacent"/>
+    <disable_collisions link1="forearm_link" link2="upper_arm_link" reason="Adjacent"/>
+    <disable_collisions link1="forearm_link" link2="wrist_1_link" reason="Adjacent"/>
+    <disable_collisions link1="forearm_link" link2="wrist_2_link" reason="Never"/>
+    <disable_collisions link1="pillar" link2="platform" reason="Adjacent"/>
+    <disable_collisions link1="pillar" link2="shoulder_link" reason="Never"/>
+    <disable_collisions link1="pillar" link2="table" reason="Never"/>
+    <disable_collisions link1="platform" link2="shoulder_link" reason="Never"/>
+    <disable_collisions link1="platform" link2="table" reason="Adjacent"/>
+    <disable_collisions link1="platform" link2="upper_arm_link" reason="Never"/>
+    <disable_collisions link1="shoulder_link" link2="table" reason="Never"/>
+    <disable_collisions link1="shoulder_link" link2="upper_arm_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist_1_link" link2="wrist_2_link" reason="Adjacent"/>
+    <disable_collisions link1="wrist_1_link" link2="wrist_3_link" reason="Never"/>
+    <disable_collisions link1="wrist_2_link" link2="wrist_3_link" reason="Adjacent"/>
 </robot>
