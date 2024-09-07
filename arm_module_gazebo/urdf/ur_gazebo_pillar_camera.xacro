@@ -70,45 +70,10 @@
   <!-- Instantiate the pillar -->
   <xacro:pillar/>
 
-  <!-- Define the camera mount link -->
-  <link name="camera_mount">
-    <!-- Visual Representation -->
-    <visual>
-      <geometry>
-        <!-- Use the mesh for visual representation, scaled down 1000 times -->
-        <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-
-    <!-- Collision Representation -->
-    <collision>
-      <geometry>
-        <!-- Use the same mesh for collision -->
-        <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.1"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
-    </inertial>
-  </link>
-
-  <!-- Joint connecting the camera mount to the tool0 of the robot -->
-  <joint name="tool0_to_camera_mount" type="fixed">
-    <parent link="tool0"/>
-    <child link="camera_mount"/>
-    <origin xyz="0 0 0.001" rpy="0 0 0"/>
-  </joint>
-
-
   <!-- Instantiate the camera -->
   <xacro:arg name="use_nominal_extrinsics" default="false"/>
   <xacro:arg name="add_plug" default="false" />
   <xacro:arg name="use_mesh" default="true" />
-  
   
   <!-- Instantiate the D435 camera -->
   <xacro:sensor_d435 name="camera" topics_ns="arm_module_camera" parent="camera_mount">
@@ -117,12 +82,7 @@
 
 
   <!-- Attach the components together -->
-  <link name="world"/>
-  <joint name="world_joint" type="fixed">
-    <parent link="world"/>
-    <child link="platform"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint>
+  <!-- -->
 
   <joint name="pillar_to_base_joint" type="fixed">
           <parent link="pillar"/>
@@ -137,7 +97,40 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
+  <!-- Define the camera mount link -->
+  <link name="camera_mount">
+    <visual>
+      <geometry>
+        <!-- Use the mesh for visual representation, scaled down 1000 times -->
+        <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <!-- Use the same mesh for collision -->
+        <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+  </link>
 
+  <!-- Joint connecting the camera mount to the tool0 of the robot -->
+  <joint name="tool0_to_camera_mount" type="fixed">
+    <parent link="tool0"/>
+    <child link="camera_mount"/>
+    <origin xyz="0 0 0.001" rpy="0 0 0"/>
+  </joint>
 
-
+  <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="platform"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  
 </robot>

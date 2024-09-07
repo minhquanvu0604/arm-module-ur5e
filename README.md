@@ -11,3 +11,31 @@
 
 ## Launching
 Check out the [launch instructions](wiki/launching.md)
+
+
+## Depth Image Processing for Gazebo
+The realsense_gazebo_plugin outputs the following topics:
+- /arm_module_camera/color/image_raw - RGB Image
+- /arm_module_camera/depth/image_raw - Depth Image
+- /arm_module_camera/color/camera_info and /arm_module_camera/depth/camera_info - Camera Calibration Info
+  
+### Image Processing Pipeline
+- **RGB Image Rectification - image_proc/rectify**
+    - Input: 
+      - /arm_module_camera/color/image_raw - Raw RGB image
+      - /arm_module_camera/color/camera_info - RGB camera info
+    - Output: 
+      - /arm_module_camera/color/image_rect_color - Rectified color image
+- **Depth Image Registration - depth_image_proc/register**
+    - Input: 
+      - /arm_module_camera/depth/image_raw - Raw depth image
+      - /arm_module_camera/color/camera_info - RGB camera info
+    - Output: 
+      - /arm_module_camera/aligned_depth_to_color/image_raw - Aligned depth image
+- **Point Cloud Generation - depth_image_proc/point_cloud_xyzrgb**
+  - Input: 
+    - /arm_module_camera/color/image_rect_color - Rectified RGB image
+    - /arm_module_camera/aligned_depth_to_color/image_raw - Aligned depth image
+    - /arm_module_camera/color/camera_info - RGB camera info
+  - Output: 
+    - /arm_module_camera/depth_registered/points - XYZRGB point cloud

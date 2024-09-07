@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="camera_only">
+
+  <xacro:include filename="$(find arm_module_ur5e_description)/urdf/inc/_d435.urdf.xacro" />
+  
+  <!-- Instantiate the D435 camera -->
+  <xacro:sensor_d435 name="camera" topics_ns="arm_module_camera" parent="world">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:sensor_d435>
+
+  <link name="world"/>
+
+</robot>

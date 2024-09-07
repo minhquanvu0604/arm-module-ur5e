@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Define arguments for conditional logic -->
+    <arg name="object" default="false" /> <!-- Set to true to load realsense_chair.world -->
+    <arg name="depth_processing" default="false" /> <!-- Set to true to launch depth_processing.launch -->
+    <arg name="gui" default="false" />
+
+    <!-- Load the robot description -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find arm_module_gazebo)/urdf/realsense_only.xacro'" />
+
+    <!-- Start robot_state_publisher to publish robot's TFs -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
+
+    <!-- Launch RViz -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_module_gazebo)/rviz/test_realsense.rviz" output="screen" />
+
+    <!-- Conditionally include Gazebo world based on object. The world file already has the camera -->
+    <group if="$(arg object)">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="gui" value="$(arg gui)" />
+            <arg name="world_name" value="$(find arm_module_gazebo)/worlds/realsense_chair.world"/>
+        </include>
+    </group>
+
+    <group unless="$(arg object)">
+        <include file="$(find gazebo_ros)/launch/empty_world.launch">
+            <arg name="gui" value="$(arg gui)" />
+            <arg name="world_name" value="$(find gazebo_ros)/worlds/empty.world"/>
+        </include>
+    </group>
+
+    <!-- Spawn robot model in Gazebo -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-param robot_description -urdf -model realsense_camera -z 0.5" />    
+
+    <!-- Conditionally include depth_processing.launch if depth_processing is true -->
+    <group if="$(arg depth_processing)">
+        <include file="$(find arm_module_gazebo)/launch/depth_processing.launch" />
+    </group>
+
+</launch>

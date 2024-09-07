@@ -1,0 +1,39 @@
+<launch>
+  <arg name="namespace" default="arm_module_camera" />
+  <arg name="manager" default="arm_module" />
+
+  <arg name="depth_registered" default="aligned_depth_to_color"/>
+  <arg name="rgb" default="color" />
+  <arg name="queue_size" default="10" />
+
+  <group ns="$(arg namespace)">
+    <!-- Nodelet manager -->
+    <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen" />
+
+    <!-- RGB Rectification Node -->
+    <node pkg="nodelet" type="nodelet" name="$(arg rgb)_rectify_color"
+          args="load image_proc/rectify $(arg manager)" respawn="false">
+      <param name="queue_size" value="$(arg queue_size)" />
+      <remap from="image_mono" to="$(arg rgb)/image_raw" />
+      <remap from="image_rect" to="$(arg rgb)/image_rect_color" />
+    </node>
+
+    <!-- Depth Alignment Node (register depth to color) -->
+    <node pkg="nodelet" type="nodelet" name="depth_registration"
+          args="load depth_image_proc/register $(arg manager)" respawn="false">
+      <param name="queue_size" value="$(arg queue_size)" />
+      <remap from="depth/image_rect" to="depth/image_raw" />
+      <remap from="rgb/camera_info" to="color/camera_info" />
+      <remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+    </node>
+
+    <!-- Colored Point Cloud Node -->
+    <node pkg="nodelet" type="nodelet" name="points_xyzrgb_hw_registered"
+          args="load depth_image_proc/point_cloud_xyzrgb $(arg manager)" respawn="false">
+      <remap from="rgb/image_rect_color" to="$(arg rgb)/image_rect_color" />
+      <remap from="rgb/camera_info" to="$(arg rgb)/camera_info" />
+      <remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
+      <remap from="depth_registered/points" to="$(arg depth_registered)/points" />
+    </node>
+  </group>
+</launch>
