@@ -54,7 +54,7 @@ class CollisionManager:
         obj_pose.header.frame_id = frame_id
         obj_pose.pose = pose
 
-        mesh_path = f"package://src/ur3e_controller/meshes/{object_type}.stl"
+        mesh_path = f"package://src/ur3e_controller/meshes/{object_type}.stl" ### CHANGE TO UR5E
         self._scene.add_mesh(obj_id, obj_pose, filename=mesh_path)
 
         return self.wait_for_obj_state(obj_name=obj_id, obj_is_known=True), obj_id

@@ -104,7 +104,6 @@
         <!-- Use the mesh for visual representation, scaled down 1000 times -->
         <mesh filename="package://arm_module_ur5e_description/meshes/d435_mount.stl" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="black"/>
     </visual>
     <collision>
       <geometry>
