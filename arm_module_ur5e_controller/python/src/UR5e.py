@@ -2,7 +2,6 @@
 
 import sys
 import numpy as np
-import math
 from copy import deepcopy
 
 import tf2_ros
@@ -33,9 +32,6 @@ class UR5e():
     MAX_VEL_SCALE_FACTOR = 0.1 #0.05
     MAX_ACC_SCALE_FACTOR = 0.1 #0.05
 
-    # Joint values guess - aid the solver to come up with elegant solutions
-    JOINT_TARGET_DEG = [0, -46.86, 44.32, -177.46, -90.16, 0.02]
-    JOINT_TARGET_RAD = [math.radians(angle) for angle in JOINT_TARGET_DEG]
 
     def __init__(self) -> None:
         moveit_commander.roscpp_initialize(sys.argv)
@@ -44,7 +40,6 @@ class UR5e():
         self.scene = PlanningSceneInterface()
         self.group = MoveGroupCommander("manipulator")
         self.group.set_pose_reference_frame("base_link")
-
 
         # self._gripper = Gripper()
         self.constraints = Constraints()
@@ -68,12 +63,12 @@ class UR5e():
 
         self._movegroup_setup()
 
-        rospy.logdebug(f"=== UR5E CONFIGURATION ===")
+        rospy.logdebug(f"=== PLANNING FRAME DETAILS ===")
         rospy.logdebug(f"============ Planning frame: {self._planning_frame}")
         rospy.logdebug(f"============ End effector link: {self._eef_link}")
         rospy.logdebug(f"============ Pose reference frame: {self.group.get_pose_reference_frame()}")
 
-        raise NotImplementedError("This class is not yet implemented")
+        # raise NotImplementedError("This class is not yet implemented")
 
 
     def _movegroup_setup(self):

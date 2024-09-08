@@ -8,14 +8,14 @@ import rospy
 from geometry_msgs.msg import Pose
 from arm_module_ur5e.srv import MoveToPose, MoveToPoseRequest
 
-from src.utility import extract_waypoints_rpy, WAYPOINT_PATH
+from src.utility import extract_waypoints_rpy, WAYPOINT
 
 
 def move_robot_client():
     rospy.init_node('move_robot_client')
     rospy.wait_for_service('mvps/arm_module/pose')
 
-    waypoints = extract_waypoints_rpy(WAYPOINT_PATH)
+    waypoints = extract_waypoints_rpy(WAYPOINT)
     
     try:
         move_to_pose = rospy.ServiceProxy('mvps/arm_module/pose', MoveToPose)

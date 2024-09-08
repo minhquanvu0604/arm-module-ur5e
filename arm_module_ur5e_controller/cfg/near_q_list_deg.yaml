@@ -1,0 +1,63 @@
+1:
+  shoulder_pan_joint: -81.12
+  shoulder_lift_joint: -59.14
+  elbow_joint: 52.03
+  wrist_1_joint: -120.87
+  wrist_2_joint: -122.74
+  wrist_3_joint: 34.79
+2:
+  shoulder_pan_joint: -104.7
+  shoulder_lift_joint: -65.18
+  elbow_joint: 52.49
+  wrist_1_joint: -112.12
+  wrist_2_joint: -79.25
+  wrist_3_joint: -10.72
+3:
+  shoulder_pan_joint: -117.27
+  shoulder_lift_joint: -62.64
+  elbow_joint: 64.07
+  wrist_1_joint: -125.37
+  wrist_2_joint: -50.53
+  wrist_3_joint: -26.3
+4:
+  shoulder_pan_joint: -78.86
+  shoulder_lift_joint: -19.04
+  elbow_joint: 29.3
+  wrist_1_joint: -186.73
+  wrist_2_joint: -157.41
+  wrist_3_joint: 5.28  
+5:
+  shoulder_pan_joint: -102.98
+  shoulder_lift_joint: -43.54
+  elbow_joint: 83.02
+  wrist_1_joint: -222.5
+  wrist_2_joint: -77.04
+  wrist_3_joint: 0.68
+6:
+  shoulder_pan_joint: -120.35
+  shoulder_lift_joint: -33.13
+  elbow_joint: 64.26
+  wrist_1_joint: -218.37
+  wrist_2_joint: -31.28
+  wrist_3_joint: 5.33
+7:
+  shoulder_pan_joint: -86.56
+  shoulder_lift_joint: -12.75
+  elbow_joint: 43.27
+  wrist_1_joint: -246.37
+  wrist_2_joint: -123.71
+  wrist_3_joint: -20.26
+8:
+  shoulder_pan_joint: -99.43
+  shoulder_lift_joint: -9.63
+  elbow_joint: 43.29
+  wrist_1_joint: -253.03
+  wrist_2_joint: -93.65
+  wrist_3_joint: -5.87
+9:
+  shoulder_pan_joint: -115.95
+  shoulder_lift_joint: -0.79
+  elbow_joint: 20.02
+  wrist_1_joint: -247.84
+  wrist_2_joint: -46.78
+  wrist_3_joint: 37.04

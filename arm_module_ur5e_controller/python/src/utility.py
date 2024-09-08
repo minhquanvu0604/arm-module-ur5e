@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
-import os, sys
-import json
+import os
+import json, yaml
 
 import rospy
 import tf
@@ -13,12 +13,10 @@ from moveit_commander.conversions import pose_to_list
 from math import pi, tau, dist, fabs, cos
 
 # Apple Picking
-import rospkg
-rospack = rospkg.RosPack()
-package_path = rospack.get_path('arm_module_ur5e_controller')
+# import rospkg
+# rospack = rospkg.RosPack()
+# package_path = rospack.get_path('arm_module_ur5e_controller')
 top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..',))
-
-WAYPOINT_PATH = package_path + "/cfg/list_poses_ur5e_demo.json"
 
 
 def all_close(goal, actual, tolerance):
@@ -186,7 +184,7 @@ def extract_waypoints_quartenion(file):
     return waypoints
 
 
-def extract_waypoints_rpy(file): 
+def read_waypoints_rpy(file): 
     with open(file, 'r') as f:
         config = json.load(f) 
         
@@ -211,3 +209,22 @@ def extract_waypoints_rpy(file):
         waypoints.append(pose)
 
     return waypoints
+
+
+def read_joint_path_rad(yaml_file):
+    with open(yaml_file, 'r') as file:
+        data = yaml.safe_load(file)
+    
+    configs = []
+    for key in data:
+        config = [
+            data[key]['shoulder_pan_joint'],
+            data[key]['shoulder_lift_joint'],
+            data[key]['elbow_joint'],
+            data[key]['wrist_1_joint'],
+            data[key]['wrist_2_joint'],
+            data[key]['wrist_3_joint']
+        ]
+        configs.append(config)
+    
+    return configs
