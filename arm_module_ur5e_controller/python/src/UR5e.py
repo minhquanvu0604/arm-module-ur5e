@@ -20,7 +20,7 @@ from python.src.utility import all_close, pose_to_transformstamped, transformsta
 # from scipy.spatial.transform import Rotation as R
 
 
-class UR5e():
+class ArmModuleUR5e():
     r"""
     A class to control the UR3e robot arm using moveit_commander.
     Dependency includes MoveIt and ROS 
@@ -39,15 +39,26 @@ class UR5e():
         self.robot = RobotCommander()
         self.scene = PlanningSceneInterface()
         self.group = MoveGroupCommander("manipulator")
-        self.group.set_pose_reference_frame("base_link")
+
+        # SET AND TEST
+        # self.group.set_pose_reference_frame("base_link")
+        self.group.set_pose_reference_frame("world")
+        print("POSE REFERENCE FRAME: ", self.group.get_pose_reference_frame())
+
+        # self.group_names = self.robot.get_group_names()
+        # self._cur_js = self.group.get_current_joint_values()
+
+        self.group.set_end_effector_link("camera_color_optical_frame")
+        print("EELINK: ", self.group.get_end_effector_link())
+
+        current_pose = self.group.get_current_pose().pose
+        print("Current pose: ", current_pose)
+
+        # exit(1)
+
 
         # self._gripper = Gripper()
         self.constraints = Constraints()
-
-        self._planning_frame = self.group.get_planning_frame()
-        # self.group_names = self.robot.get_group_names()
-        self._eef_link = self.group.get_end_effector_link()
-        self._cur_js = self.group.get_current_joint_values()
 
         self._marker_pub = rospy.Publisher(
             "/visualization_marker", Marker, queue_size=10)
@@ -64,26 +75,23 @@ class UR5e():
         self._movegroup_setup()
 
         rospy.logdebug(f"=== PLANNING FRAME DETAILS ===")
-        rospy.logdebug(f"============ Planning frame: {self._planning_frame}")
-        rospy.logdebug(f"============ End effector link: {self._eef_link}")
+        rospy.logdebug(f"============ Planning frame: {self.group.get_planning_frame()}")
+        rospy.logdebug(f"============ End effector link: {self.group.get_end_effector_link()}")
         rospy.logdebug(f"============ Pose reference frame: {self.group.get_pose_reference_frame()}")
-
-        # raise NotImplementedError("This class is not yet implemented")
 
 
     def _movegroup_setup(self):
         r"""
         Setup the move group.
         """
-
         # self.group.set_start_state_to_current_state()
         self.group.set_planner_id("RRTConnect") # ompl_planning.yaml
         self.group.set_planning_time(20)
         self.group.set_num_planning_attempts(10)
-        self.group.set_goal_position_tolerance(UR5e.POS_TOL)
-        self.group.set_goal_joint_tolerance(UR5e.POS_TOL)
-        self.group.set_max_velocity_scaling_factor(UR5e.MAX_VEL_SCALE_FACTOR)
-        self.group.set_max_acceleration_scaling_factor(UR5e.MAX_ACC_SCALE_FACTOR)
+        self.group.set_goal_position_tolerance(ArmModuleUR5e.POS_TOL)
+        self.group.set_goal_joint_tolerance(ArmModuleUR5e.POS_TOL)
+        self.group.set_max_velocity_scaling_factor(ArmModuleUR5e.MAX_VEL_SCALE_FACTOR)
+        self.group.set_max_acceleration_scaling_factor(ArmModuleUR5e.MAX_ACC_SCALE_FACTOR)
 
         # self.init_path_constraints()
 
@@ -194,7 +202,7 @@ class UR5e():
         # self._visualise_pose_in_loop(pose)
 
         # Set q guess
-        self.group.set_joint_value_target(UR5e.JOINT_TARGET_RAD)
+        self.group.set_joint_value_target(ArmModuleUR5e.JOINT_TARGET_RAD)
         # Set target
         self.group.set_pose_target(pose)
         self.group.go(wait=wait)
@@ -202,10 +210,10 @@ class UR5e():
         self.group.clear_pose_targets()
 
         cur_pose = self.group.get_current_pose().pose
-        return all_close(pose, cur_pose, UR5e.TOL_CHECK)
+        return all_close(pose, cur_pose, ArmModuleUR5e.TOL_CHECK)
 
 
-    def go_to_joint_goal(self, joint_goal, wait=True, timeout=10):
+    def go_to_joint_goal_rad(self, joint_goal, wait=True, timeout=10):
         r"""
         Move the robot to the specified joint angles.
 
@@ -232,7 +240,7 @@ class UR5e():
         
         cur_joint = self.group.get_current_joint_values()
         
-        return all_close(joint_goal, cur_joint, UR5e.TOL_CHECK)
+        return all_close(joint_goal, cur_joint, ArmModuleUR5e.TOL_CHECK)
 
 
     def go_to_pose_goal(self, pose: Pose, child_frame_id, parent_frame_id):
@@ -257,9 +265,7 @@ class UR5e():
             pose = self._get_transform_in_planning_frame(
                 pose, child_frame_id, parent_frame_id)
 
-
         plan, _ = self._gen_cartersian_path(pose)
-
 
         # self._display_traj(plan)
         self.execute_plan(plan, wait=True)
@@ -268,11 +274,8 @@ class UR5e():
         # self.group.go(wait=True)
         # self.group.stop()
         # self.group.clear_pose_targets()
-
         cur_pose = self.group.get_current_pose().pose
-
         return all_close(pose, cur_pose, 0.001)
-
 
     def execute_plan(self, plan: RobotTrajectory, wait=True):
         r"""
@@ -286,9 +289,7 @@ class UR5e():
         except Exception as e:
             rospy.logerr(e)
             return False
-        
         return all_close(plan.joint_trajectory.points[-1], self.group.get_current_pose().pose, 0.001)
-
 
     def stop(self):
         self.group.stop()
@@ -308,7 +309,6 @@ class UR5e():
         cur_joint = self.group.get_current_joint_values()
         return all_close(joint_goal, cur_joint, 0.001)
 
-
     def move_ee_along_axis(self, axis: str, delta: float) -> bool:
         r"""
         Move the end effector along the specified axis of the planning frame.
@@ -316,7 +316,6 @@ class UR5e():
         @param: delta The distance to move
         @returns: bool True if successful by comparing the goal and actual poses
         """
-
         goal = deepcopy(self.group.get_current_pose().pose)
         if axis == "x":
             goal.position.x += delta
@@ -327,11 +326,9 @@ class UR5e():
         else:
             rospy.logerr("Invalid axis")
             return False
-
         plan, _ = self._gen_cartersian_path(target_pose=goal)
         if plan is None:
             return False
-        
         done = self.execute_plan(plan=plan, wait=True)
         return done
 
@@ -357,7 +354,6 @@ class UR5e():
 
         @TODO: Check this function
         """
-
         current_pose = self.group.get_current_pose().pose
         # generate a straight line path using a scaling 0 to 1 applied to the target pose differ to current pose
         waypoints = [current_pose, target_pose]

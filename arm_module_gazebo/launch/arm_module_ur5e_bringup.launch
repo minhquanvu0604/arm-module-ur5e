@@ -77,4 +77,6 @@
     <arg name="initial_joint_positions" value=" -J shoulder_pan_joint -1.79734006  -J shoulder_lift_joint -0.75991636 -J elbow_joint 1.4489723 -J wrist_1_joint -3.8833576 -J wrist_2_joint -1.3446017 -J wrist_3_joint 0.01186824"/>
   </include>
   
+    <!-- Launch depth processing pipeline to get pointcloud -->
+    <include file="$(find arm_module_gazebo)/launch/depth_processing.launch" />
 </launch>

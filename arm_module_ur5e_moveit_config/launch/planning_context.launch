@@ -7,7 +7,7 @@
 
   <!-- Load universal robot description format (URDF) -->
   <!-- <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro  '$(find arm_module_ur5e_description)/urdf/ur5e.xacro'"/> -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro  '$(find arm_module_ur5e_description)/urdf/ur5e.xacro'"/>
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro '$(find arm_module_ur5e_description)/urdf/ur5e.xacro'"/>
 
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find arm_module_ur5e_moveit_config)/config/ur5e.srdf" />

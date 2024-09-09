@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 import os
 import json, yaml
+import math
+from collections import OrderedDict
 
 import rospy
 import tf
@@ -33,10 +35,8 @@ def all_close(goal, actual, tolerance):
         for index in range(len(goal)):
             if abs(actual[index] - goal[index]) > tolerance:
                 return False
-
     elif type(goal) is PoseStamped:
         return all_close(goal.pose, actual.pose, tolerance)
-
     elif type(goal) is Pose:
         x0, y0, z0, qx0, qy0, qz0, qw0 = pose_to_list(actual)
         x1, y1, z1, qx1, qy1, qz1, qw1 = pose_to_list(goal)
@@ -44,26 +44,20 @@ def all_close(goal, actual, tolerance):
         d = dist((x1, y1, z1), (x0, y0, z0))
         # cos_phi_half = fabs(qx0 * qx1 + qy0 * qy1 + qz0 * qz1 + qw0 * qw1)
         return d <= tolerance #and cos_phi_half >= cos(tolerance / 2.0)
-
     return True
 
-
 def list_to_pose(pose: list) -> Pose:
-
     p = Pose()
     p.position.x = pose[0]
     p.position.y = pose[1]
     p.position.z = pose[2]
-
     ori_in_quat = tf.transformations.quaternion_from_euler(
         pose[3], pose[4], pose[5], axes='rxyz')
     p.orientation.x = ori_in_quat[0]
     p.orientation.y = ori_in_quat[1]
     p.orientation.z = ori_in_quat[2]
     p.orientation.w = ori_in_quat[3]
-
     return p
-
 
 def transformstamped_to_posestamped(ts: TransformStamped) -> PoseStamped:
     r"""
@@ -80,7 +74,6 @@ def transformstamped_to_posestamped(ts: TransformStamped) -> PoseStamped:
     ps.pose.position.y = ts.transform.translation.y
     ps.pose.position.z = ts.transform.translation.z
     ps.pose.orientation = ts.transform.rotation
-
     return ps
 
 
@@ -90,16 +83,13 @@ def transformstamped_to_pose(ts: TransformStamped) -> Pose:
 
     @param: ts The TransformStamped to be converted
     @returns: Pose A Pose instance
-
     """
     p = Pose()
     p.position.x = ts.transform.translation.x
     p.position.y = ts.transform.translation.y
     p.position.z = ts.transform.translation.z
     p.orientation = ts.transform.rotation
-
     return p
-
 
 def pose_to_transformstamped(pose: Pose, child_frame_id: str, parent_frame_id: str) -> TransformStamped:
     r"""
@@ -119,9 +109,7 @@ def pose_to_transformstamped(pose: Pose, child_frame_id: str, parent_frame_id: s
     ts.transform.translation.y = pose.position.y
     ts.transform.translation.z = pose.position.z
     ts.transform.rotation = pose.orientation
-
     return ts
-
 
 def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], color=[0, 1, 0, 1]) -> Marker:
     marker = Marker()
@@ -143,29 +131,21 @@ def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], colo
     marker.color.g = color[1]
     marker.color.b = color[2]
     marker.color.a = color[3]
-
-    # marker.lifetime = 10000
-
     return marker
 
-
 def list_to_PoseStamped(pose: list, frame_id: str = "base_link_inertia") -> PoseStamped:
-
     ps = PoseStamped()
     ps.header.frame_id = frame_id
     ps.pose.position.x = pose[0]
     ps.pose.position.y = pose[1]
     ps.pose.position.z = pose[2]
-
     ori_in_quat = tf.transformations.quaternion_from_euler(
         pose[3], pose[4], pose[5], axes='sxyz')
     ps.pose.orientation.x = ori_in_quat[0]
     ps.pose.orientation.y = ori_in_quat[1]
     ps.pose.orientation.z = ori_in_quat[2]
     ps.pose.orientation.w = ori_in_quat[3]
-
     return ps
-
 
 def extract_waypoints_quartenion(file): 
     with open(file, 'r') as f:
@@ -183,38 +163,30 @@ def extract_waypoints_quartenion(file):
         waypoints.append(pose)
     return waypoints
 
-
 def read_waypoints_rpy(file): 
     with open(file, 'r') as f:
         config = json.load(f) 
-        
     waypoints = []
     for waypoint in config["posePlanner"]["list"]:
         pose = Pose()
         pose.position.x = waypoint["x"]
         pose.position.y = waypoint["y"]
         pose.position.z = waypoint["z"]
-        
         # Convert RPY to quaternion
         roll = waypoint["roll"]
         pitch = waypoint["pitch"]
         yaw = waypoint["yaw"]
         quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
-        
         pose.orientation.x = quaternion[0]
         pose.orientation.y = quaternion[1]
         pose.orientation.z = quaternion[2]
         pose.orientation.w = quaternion[3]
-        
         waypoints.append(pose)
-
     return waypoints
 
-
-def read_joint_path_rad(yaml_file):
+def read_joint_path(yaml_file):
     with open(yaml_file, 'r') as file:
         data = yaml.safe_load(file)
-    
     configs = []
     for key in data:
         config = [
@@ -226,5 +198,32 @@ def read_joint_path_rad(yaml_file):
             data[key]['wrist_3_joint']
         ]
         configs.append(config)
-    
     return configs
+
+
+def convert_joint_values_to_rad(input_file, output_file):
+    """
+    Converts joint values from degrees to radians in a YAML file and saves the result.
+    """
+    with open(input_file, 'r') as file:
+        data = yaml.safe_load(file)
+    # Convert all joint values from degrees to radians 
+    for key in data:
+        for joint, value in data[key].items():
+            # Choose the convsersion type
+            data[key][joint] = round(math.radians(value), 2) # round to 2 decimal places
+            
+            # data[key][joint] = round(math.degrees(value), 2)
+            
+            # if joint != 'wrist_1_joint':
+            #     continue            
+            # data[key][joint] += round(math.pi*2, 2) # Add 2*pi to all joint values
+    # Preserve the original order of the keys in the YAML file
+    with open(output_file, 'w') as file:
+        yaml.dump(data, file, default_flow_style=False, sort_keys=False)
+
+
+
+if __name__ == "__main__":
+    convert_joint_values_to_rad('/home/quanvu/git/arm-module-ur5e/arm_module_ur5e_controller/cfg/near_q_list_rad_sim.yaml',
+                                '/home/quanvu/git/arm-module-ur5e/arm_module_ur5e_controller/cfg/near_q_list_deg_sim.yaml')

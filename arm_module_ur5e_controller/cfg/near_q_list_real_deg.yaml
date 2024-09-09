@@ -1,3 +1,6 @@
+# This yaml contains joint values in degrees recorded from jogging the real robot
+# Images of all the configs are saved in the folder wiki/images/camera_near_object and camera_far_object
+
 1:
   shoulder_pan_joint: -81.12
   shoulder_lift_joint: -59.14

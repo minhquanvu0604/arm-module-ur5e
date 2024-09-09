@@ -6,6 +6,8 @@
 
 ## arm_module_ur5e_controller
 ## arm_module_ur5e_description
+The robot URDF here is not used now. Robot description is published by arm_module_gazebo. Will need to enable load_robot_description in move_group.launch to add scene data if using real robot. 
+
 ## arm_module_gazebo
 ## arm_module_ur5e_moveit_config
 
