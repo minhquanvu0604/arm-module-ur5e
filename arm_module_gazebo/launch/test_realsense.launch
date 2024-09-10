@@ -2,9 +2,9 @@
 <launch>
 
     <!-- Define arguments for conditional logic -->
-    <arg name="object" default="false" /> <!-- Set to true to load realsense_chair.world -->
-    <arg name="depth_processing" default="false" /> <!-- Set to true to launch depth_processing.launch -->
-    <arg name="gui" default="false" />
+    <arg name="object" default="true" /> <!-- Set to true to load realsense_chair.world -->
+    <arg name="depth_processing" default="true" /> <!-- Set to true to launch depth_processing.launch -->
+    <arg name="gui" default="true" />
 
     <!-- Load the robot description -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find arm_module_gazebo)/urdf/realsense_only.xacro'" />

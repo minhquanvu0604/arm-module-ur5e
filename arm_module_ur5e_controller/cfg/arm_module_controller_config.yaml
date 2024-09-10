@@ -1,2 +1,2 @@
-current_pose_ros_service: True
-goal_pose_ros_service: False
+query_current_pose_ros_service: True
+send_goal_pose_ros_service: False

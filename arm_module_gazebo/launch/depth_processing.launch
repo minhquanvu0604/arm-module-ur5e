@@ -6,6 +6,8 @@
   <arg name="rgb" default="color" />
   <arg name="queue_size" default="10" />
 
+  <arg name="pointcloud_normals" default="true"/>
+
   <group ns="$(arg namespace)">
     <!-- Nodelet manager -->
     <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" output="screen" />
@@ -35,5 +37,15 @@
       <remap from="depth_registered/image_rect" to="$(arg depth_registered)/image_raw" />
       <remap from="depth_registered/points" to="$(arg depth_registered)/points" />
     </node>
+
+    <!-- Point cloud normals-->
+    <group if="$(arg pointcloud_normals)">
+      <node pkg="nodelet" type="nodelet" name="pointcloud_normals"
+            args="load depth_processing/pointcloud_normals $(arg manager)" respawn="false">
+        <remap from="points"     to="$(arg depth_registered)/points" />
+        <param name="publish" value="true" />
+      </node>
+    </group>
+
   </group>
 </launch>

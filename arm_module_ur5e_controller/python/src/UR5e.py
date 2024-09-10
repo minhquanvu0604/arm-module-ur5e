@@ -258,7 +258,7 @@ class ArmModuleUR5e():
 
 
         # self._visualise_pose_in_loop(pose)
-        # self._visualize_target_pose(pose, frame_id='world')
+        # self.visualize_target_pose(pose, frame_id='world')
 
 
         if parent_frame_id != self._planning_frame:
@@ -430,7 +430,7 @@ class ArmModuleUR5e():
 
 
     # ============ Visualization =================================================================
-    def _visualize_target_pose(self, pose: Pose, type: int=2, frame_id: str="world"):
+    def visualize_target_pose(self, pose: Pose, type: int=2, frame_id: str="world"):
         target_marker = create_marker(frame_id, type, pose)
         self._marker_pub.publish(target_marker)
 
@@ -447,5 +447,5 @@ class ArmModuleUR5e():
         rate = rospy.Rate(1)  # 1 Hz
         while not rospy.is_shutdown():
             print(f"Visualizing target pose: {pose.position.x, pose.position.y, pose.position.z}")
-            self._visualize_target_pose(pose, frame_id='world')
+            self.visualize_target_pose(pose, frame_id='world')
             rate.sleep()

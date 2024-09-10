@@ -44,8 +44,8 @@ class RobotController:
         rospy.loginfo("Initialising RobotController")
 
         # Configs
-        goal_pose_ros_service = cfg['goal_pose_ros_service']
-        current_pose_ros_service = cfg['current_pose_ros_service']
+        send_goal_pose_ros_service = cfg['send_goal_pose_ros_service']
+        query_current_pose_ros_service = cfg['query_current_pose_ros_service']
 
         self._rate = rospy.Rate(RobotController.RATE)
 
@@ -88,11 +88,11 @@ class RobotController:
         
         # exit(0)
 
-        if current_pose_ros_service:
+        if query_current_pose_ros_service:
             self._pose_service = rospy.Service('mvps/arm_module/query_data', PoseService, self._query_pose_callback)
             rospy.loginfo("[RobotController] Service to query current pose is ready.")
 
-        if goal_pose_ros_service:
+        if send_goal_pose_ros_service:
             self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
             rospy.loginfo("[RobotController] Service to receive goal pose is ready.")   
         else:
@@ -100,7 +100,6 @@ class RobotController:
             self._control_thread.start()
 
         # ROS will keep spinning until the node is shutdown with Ctrl+C
-        print("Press Ctrl+C to stop the program...")
         rospy.spin()
 
     def _execute_demo_pose_list(self) -> None:
@@ -118,16 +117,19 @@ class RobotController:
         joint_path = read_joint_path(JOINT_PATH_DEG)
         joint_path = [[math.radians(joint) for joint in config] for config in joint_path] # convert to rad
         goal_id = 0
+
         for joint_goal in joint_path:
             print(f"[RobotController] Start planning goal {goal_id}")
             self.robot.go_to_joint_goal_rad(joint_goal)
 
-            # Print current pose
-            current_pose = self.robot.group.get_current_pose()
+            # DEBUGGING
+            current_pose = self.robot.group.get_current_pose().pose # PoseStamped -> Pose
+            print(f"[RobotController] POSE AT GOAL {goal_id}: {current_pose}")
+            # self.robot.visualize_target_pose(current_pose)
 
             print(f"[RobotController] Goal {goal_id} completed\n")
-            print(f"[RobotController] POSE AT GOAL {goal_id}: {current_pose}")
             goal_id += 1
+
         print("[RobotController] All goals completed")
 
         # Move to home position
@@ -135,6 +137,7 @@ class RobotController:
         self.robot.go_to_joint_goal_rad(HOME_JOINT_RAD, wait=True)
         print("[RobotController] Moving back to home position DONE")
         print("[RobotController] DEMO COMPLETE")
+        print("Press Ctrl+C to stop the program...")
 
 
         # [RobotController] POSE AT GOAL 0: header: 

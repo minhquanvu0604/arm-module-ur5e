@@ -111,7 +111,7 @@ def pose_to_transformstamped(pose: Pose, child_frame_id: str, parent_frame_id: s
     ts.transform.rotation = pose.orientation
     return ts
 
-def create_marker(frame: str, type: int, pose: Pose, scale=[0.1, 0.1, 0.1], color=[0, 1, 0, 1]) -> Marker:
+def create_marker(frame: str, type: int, pose: Pose, scale=[0.05, 0.05, 0.05], color=[0, 1, 0, 0.2]) -> Marker:
     marker = Marker()
 
     marker.header.frame_id = frame
