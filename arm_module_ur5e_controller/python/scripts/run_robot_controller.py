@@ -98,6 +98,7 @@ class RobotController:
         else:
             self._control_thread = threading.Thread(target=self._execute_demo_joint_list)
             self._control_thread.start()
+            pass
 
         # ROS will keep spinning until the node is shutdown with Ctrl+C
         rospy.spin()

@@ -44,7 +44,13 @@ roslaunch arm_module_ur5e_moveit_config moveit_rviz.launch
 - Add new program in Program/URCap
 
 
-### Launching Simulation
+### Launch Camera Module only
+```bash
+roslaunch arm_module_gazebo test_realsense.launch
+```
+
+
+### Launching Simulation UR5 only
 Bring up the simulated robot in Gazebo
 ```bash
 roslaunch ur_gazebo ur5e_bringup.launch
