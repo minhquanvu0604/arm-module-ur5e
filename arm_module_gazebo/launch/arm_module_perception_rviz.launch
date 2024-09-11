@@ -1,2 +1,5 @@
+<?xml version="1.0"?>
+<launch>
     <!-- Launch RViz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_module_gazebo)/rviz/arm_module_full.rviz" output="screen" />
+</launch>

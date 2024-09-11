@@ -130,6 +130,8 @@ class RobotController:
             print(f"[RobotController] Goal {goal_id} completed\n")
             goal_id += 1
 
+            input("Press Enter to continue...")
+
         print("[RobotController] All goals completed")
 
         # Move to home position

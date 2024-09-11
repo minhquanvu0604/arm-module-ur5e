@@ -3,13 +3,16 @@ The launch file structure in this package mimics the UR robot ROS Wrapper ([univ
 
 ## Launching UR5 model with base
 Modify launch files and urdf to add the base of the robot arm (in UTS:RI lab it is a pillar)
+
+If you include the pointcloud_normals nodelet, you need to build and source the MVPS package
 ```bash
 roslaunch arm_module_gazebo arm_module_ur5e_bringup.launch
 ```
 
 Visualising the perception system in RViz
 ```bash
-roslaunch arm_module_ur5e_moveit_config arm_module_perception_rviz.launch
+# To be moved to description
+roslaunch arm_module_gazebo arm_module_perception_rviz.launch
 ```
 
 Turn on the MoveIt! nodes to allow motion planning
@@ -23,6 +26,8 @@ This is the default launch set up provided by the original universal_robot packa
 Start the robot driver. To check robot IP, use the teach pendant, go to Settings/System/Network
 ```bash
 roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=192.168.0.169
+# or
+roslaunch ur_robot_driver ur5e_bringup.launch robot_ip:=150.22.0.93 robot_description_file:=$(rospack find arm_module_gazebo)/launch/inc/load_ur5e_pillar_camera.launch.xml
 ```
 
 Launch UR5e MoveIt config
