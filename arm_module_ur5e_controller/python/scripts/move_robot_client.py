@@ -1,7 +1,5 @@
-#!/usr/bin/env python
 import sys
 sys.path.append('/home/quanvu/git/arm-module-ur5e/arm_module_ur5e_controller/python')
-
 sys.path.append('/root/apple_ws/src/python')
 
 import rospy

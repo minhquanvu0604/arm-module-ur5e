@@ -32,7 +32,6 @@ class ArmModuleUR5e():
     MAX_VEL_SCALE_FACTOR = 0.1 #0.05
     MAX_ACC_SCALE_FACTOR = 0.1 #0.05
 
-
     def __init__(self) -> None:
         moveit_commander.roscpp_initialize(sys.argv)
 

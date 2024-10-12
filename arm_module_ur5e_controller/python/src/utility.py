@@ -147,11 +147,18 @@ def list_to_PoseStamped(pose: list, frame_id: str = "base_link_inertia") -> Pose
     ps.pose.orientation.w = ori_in_quat[3]
     return ps
 
-def extract_waypoints_quartenion(file): 
+def read_waypoints_quartenion(file): 
     with open(file, 'r') as f:
-        config = json.load(f) 
+        if file.endswith('.json'):
+            config = json.load(f)
+            config = config["posePlanner"]["list"] 
+        elif file.endswith('.yaml'):
+            config = yaml.safe_load(f)
+        else:
+            raise ValueError("Not JSON or YAML file")
+        
     waypoints = []
-    for waypoint in config["posePlanner"]["list"]:
+    for waypoint in config.values():
         pose = Pose()
         pose.position.x = waypoint["x"]
         pose.position.y = waypoint["y"]
@@ -161,6 +168,7 @@ def extract_waypoints_quartenion(file):
         pose.orientation.z = waypoint["qz"]
         pose.orientation.w = waypoint["qw"]
         waypoints.append(pose)
+        
     return waypoints
 
 def read_waypoints_rpy(file): 

@@ -13,7 +13,7 @@ def query_pose():
     try:
         query_service = rospy.ServiceProxy('/mvps/arm_module/query_data', PoseService)
         request = PoseServiceRequest()
-        response = query_service(request)
+        response = query_service(request) # Send request to service
 
         position = response.pose.pose.position
         orientation = response.pose.pose.orientation
