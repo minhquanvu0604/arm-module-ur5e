@@ -4,10 +4,11 @@ sys.path.insert(0, arm_module_ur5e_controller_path)
 
 import math
 import threading
-# from copy import deepcopy
+from enum import Enum
 import yaml
 
 import rospy
+from std_srvs.srv import Trigger, TriggerResponse
 # import tf2_ros
 # import tf.transformations
 # from sensor_msgs.msg import JointState
@@ -23,6 +24,10 @@ from python.src.utility import read_waypoints_rpy, read_joint_path
 # from geometry_msgs.msg import Pose
 
 
+class ArmState(Enum):
+    IDLE = 0
+    RUNNING = 1
+
 class RobotController:
     """
     To get sim groundtruth pose: rosrun tf tf_echo world tool0
@@ -37,9 +42,11 @@ class RobotController:
         rospy.loginfo("Initialising RobotController")
 
         # Configs
-        send_goal_pose_ros_service = cfg['send_goal_pose_ros_service']
-        query_current_pose_ros_service = cfg['query_current_pose_ros_service']
+        mode = cfg['mode']
+        query_current_pose_service = cfg['query_current_pose_ros_service']
+        # publish_state = cfg['publish_state']
 
+        self._state = ArmState.IDLE
         self._rate = rospy.Rate(RobotController.RATE)
 
         # Initialize the UR3e controller
@@ -81,17 +88,25 @@ class RobotController:
         
         # exit(0)
 
-        if query_current_pose_ros_service:
+        if query_current_pose_service:
             self._pose_service = rospy.Service('mvps/arm_module/query_data', PoseService, self._query_pose_callback)
             rospy.loginfo("[RobotController] Service to query current pose is ready.")
 
-        if send_goal_pose_ros_service:
-            self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
-            rospy.loginfo("[RobotController] Service to receive goal pose is ready.")   
-        else:
+        # if publish_state:
+        #     self._state_publisher = rospy.Publisher('mvps/arm_module/state', ArmState, queue_size=10)
+        #     rospy.loginfo("[RobotController] State publisher is ready.")
+
+        if mode is 1:
             self._control_thread = threading.Thread(target=self._execute_demo_joint_list)
             self._control_thread.start()
-            pass
+        elif mode is 2:
+            self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
+            rospy.loginfo("[RobotController] Service to receive goal pose is ready.")   
+        elif mode is 3:
+            self._next_pose_setup()
+            self._next_pose_service = rospy.Service('mvps/arm_module/next_pose', Trigger, self._next_pose_callback)
+            rospy.loginfo("[RobotController] Service to go to next pose is ready.")
+            
 
         # ROS will keep spinning until the node is shutdown with Ctrl+C
         rospy.spin()
@@ -111,6 +126,7 @@ class RobotController:
         joint_path = read_joint_path(JOINT_PATH_DEG)
         joint_path = [[math.radians(joint) for joint in config] for config in joint_path] # convert to rad
         goal_id = 0
+        self._state = ArmState.RUNNING
 
         for joint_goal in joint_path:
             print(f"[RobotController] Start planning goal {goal_id}")
@@ -127,22 +143,50 @@ class RobotController:
             input("Press Enter to continue...")
 
         print("[RobotController] All goals completed")
-
+        
         # Move to home position
         print("[RobotController] Moving back to home position")
         self.robot.go_to_joint_goal_rad(RobotController.HOME_JOINT_RAD, wait=True)
+        self._state = ArmState.IDLE
+
         print("[RobotController] Moving back to home position DONE")
         print("[RobotController] DEMO COMPLETE")
         print("Press Ctrl+C to stop the program...")
 
     def _move_to_pose_callback(self, req):
+        self._state = ArmState.RUNNING
         pose_goal = req.pose
         # rospy.loginfo("Starting to move to the goal pose")
         success = self.robot.go_to_pose_goal_simple(pose_goal, wait=True)
         # rospy.loginfo("Finished moving to the goal pose")
+        self._state = ArmState.IDLE
         response = MoveToPoseResponse()
         response.success = success
         return response
+
+    def _next_pose_setup(self):
+        self.joint_path = read_joint_path(JOINT_PATH_DEG)
+        self.joint_path = [[math.radians(joint) for joint in config] for config in self.joint_path] # convert to rad
+        self.current_goal = 0
+
+    def _next_pose_callback(self, req):
+        response = TriggerResponse()
+
+        if self.current_goal < len(self.joint_path):
+            self._state = ArmState.RUNNING
+            
+            joint_goal = self.joint_path[self.current_goal]
+            self.robot.go_to_joint_goal_rad(joint_goal, wait=True)
+            self.current_goal += 1
+            rospy.loginfo(f"[RobotController] Moved to goal {self.current_goal}")
+
+            self._state = ArmState.IDLE
+            response.success = True
+            return response
+        else:
+            rospy.loginfo("[RobotController] All goals completed")
+            response.success = False
+            return response
 
     def _query_pose_callback(self, req):
         self._secure_data.acquire()

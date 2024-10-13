@@ -14,6 +14,7 @@ from python.src.utility import read_waypoints_quartenion
 # and return the pose using moveit_commander.get_current_pose()
 NEAR_Q_LIST_SIM_DEG_POSE_PATH = os.path.join(CONFIG_PATH, 'near_q_list_sim_deg_pose.yaml')
 
+
 class FakePoseService:
     """
     Fake pose service for testing purposes. Mimics the behavior of the real pose service.
@@ -31,7 +32,6 @@ class FakePoseService:
 
     def _query_pose_callback(self, req):
         res = PoseServiceResponse()
-
         pose_stamped = PoseStamped()
 
         if self._i >= len(self._waypoints):

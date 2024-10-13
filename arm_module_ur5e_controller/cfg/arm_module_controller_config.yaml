@@ -1,2 +1,7 @@
+# Mode:
+# Send goal pose via service - 1
+# Execute demo with pose list - 2
+# MVPS integration, next pose service - 3
+mode: 3 
 query_current_pose_ros_service: True
-send_goal_pose_ros_service: False
+# publish_state: True

@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   geometry_msgs
+  std_srvs
   message_generation
 )
 
@@ -33,7 +34,7 @@ generate_messages(
 
 # Declare a catkin package
 catkin_package(
-  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
+  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs std_srvs
 )
 
 # Include directories
