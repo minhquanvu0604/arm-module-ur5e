@@ -33,12 +33,12 @@ class RobotController:
     To get sim groundtruth pose: rosrun tf tf_echo world tool0
     """
     RATE = 10  # Hz
-    # Joint values guess - aid the solver to come up with elegant solutions
+    # Joint values guess - aid the solver to come up with elegant solutions - this one is for MVPS Apple Picking
     HOME_JOINT_RAD = [-1.7973400948921046, -0.7555930298280389, 1.455735132902352, 2.401335236663474, -1.3445789828512975, 0.0020295319930268008]
 
     def __init__(self, cfg) -> None:
 
-        rospy.init_node("arm_module_ur5e", log_level=1, anonymous=True)
+        rospy.init_node("arm_module_ur5e", log_level=rospy.INFO, anonymous=True)
         rospy.loginfo("Initialising RobotController")
 
         # Configs
@@ -76,51 +76,56 @@ class RobotController:
         # self._safety_thread.start()
 
         rospy.on_shutdown(self.cleanup)
+        self._shutdown_servie = rospy.Service('/mvps/arm_module/shutdown', Trigger, self.shutdown_callback)
 
         # joints = self.robot.group.get_current_joint_values()
-        # print(f"[RobotController] Starting joint values: {joints}")
+        # rospy.loginfo(f"Starting joint values: {joints}")
         # raise Exception("Stop here")
 
         # Move to home position
-        print("[RobotController] Moving to home position")
+        rospy.loginfo("Moving to home position")
         self.robot.go_to_joint_goal_rad(RobotController.HOME_JOINT_RAD, wait=True)
-        print("[RobotController] Moving to home position DONE")
+        rospy.loginfo("Moved to home position")
         
         # exit(0)
 
         if query_current_pose_service:
-            self._pose_service = rospy.Service('mvps/arm_module/query_data', PoseService, self._query_pose_callback)
-            rospy.loginfo("[RobotController] Service to query current pose is ready.")
+            self._pose_service = rospy.Service('/mvps/arm_module/query_data', PoseService, self._query_pose_callback)
+            rospy.loginfo("Service to query current pose is ready.")
 
         # if publish_state:
         #     self._state_publisher = rospy.Publisher('mvps/arm_module/state', ArmState, queue_size=10)
-        #     rospy.loginfo("[RobotController] State publisher is ready.")
+        #     rospy.loginfo("State publisher is ready.")
 
-        if mode is 1:
+        if mode == 1:
             self._control_thread = threading.Thread(target=self._execute_demo_joint_list)
             self._control_thread.start()
-        elif mode is 2:
+        elif mode == 2:
             self._move_service = rospy.Service('mvps/arm_module/pose', MoveToPose, self._move_to_pose_callback)
-            rospy.loginfo("[RobotController] Service to receive goal pose is ready.")   
-        elif mode is 3:
+            rospy.loginfo("Service to receive goal pose is ready. Waiting for service call to supply goal pose.")   
+        elif mode == 3:
             self._next_pose_setup()
             self._next_pose_service = rospy.Service('mvps/arm_module/next_pose', Trigger, self._next_pose_callback)
-            rospy.loginfo("[RobotController] Service to go to next pose is ready.")
-            
+            rospy.loginfo("Service to go to next pose is ready. Waiting for service call to signal moving to next pose.")
+        else:
+            rospy.logerr("Invalid mode selected. Exiting...")
+            exit(1)
 
         # ROS will keep spinning until the node is shutdown with Ctrl+C
         rospy.spin()
+        rospy.loginfo("Shutting down Arm Module")
+
 
     def _execute_demo_pose_list(self) -> None:
         waypoints = read_waypoints_rpy(WAYPOINT)    
         goal_id = 0
         for pose_goal in waypoints:
-            print(f"[RobotController] Start planning goal {goal_id}")
+            rospy.loginfo(f"Start planning goal {goal_id}")
             # self.robot.go_to_pose_goal(pose, None, parent_frame_id)
             self.robot.go_to_pose_goal_simple(pose_goal)
-            print(f"[RobotController] Goal {goal_id} completed\n")
+            rospy.loginfo(f"Goal {goal_id} completed\n")
             goal_id += 1
-        print("[RobotController] DEMO COMPLETE")
+        rospy.loginfo("DEMO COMPLETE")
 
     def _execute_demo_joint_list(self) -> None:
         joint_path = read_joint_path(JOINT_PATH_DEG)
@@ -129,29 +134,29 @@ class RobotController:
         self._state = ArmState.RUNNING
 
         for joint_goal in joint_path:
-            print(f"[RobotController] Start planning goal {goal_id}")
+            rospy.loginfo(f"Start planning goal {goal_id}")
             self.robot.go_to_joint_goal_rad(joint_goal)
 
             # DEBUGGING
             current_pose = self.robot.group.get_current_pose().pose # PoseStamped -> Pose
-            print(f"[RobotController] POSE AT GOAL {goal_id}: {current_pose}")
+            rospy.loginfo(f"POSE AT GOAL {goal_id}: {current_pose}")
             # self.robot.visualize_target_pose(current_pose)
 
-            print(f"[RobotController] Goal {goal_id} completed\n")
+            rospy.loginfo(f"Goal {goal_id} completed\n")
             goal_id += 1
 
             input("Press Enter to continue...")
 
-        print("[RobotController] All goals completed")
+        rospy.loginfo("All goals completed")
         
         # Move to home position
-        print("[RobotController] Moving back to home position")
+        rospy.loginfo("Moving back to home position")
         self.robot.go_to_joint_goal_rad(RobotController.HOME_JOINT_RAD, wait=True)
         self._state = ArmState.IDLE
 
-        print("[RobotController] Moving back to home position DONE")
-        print("[RobotController] DEMO COMPLETE")
-        print("Press Ctrl+C to stop the program...")
+        rospy.loginfo("Moving back to home position DONE")
+        rospy.loginfo("DEMO COMPLETE")
+        rospy.loginfo("Press Ctrl+C to stop the program...")
 
     def _move_to_pose_callback(self, req):
         self._state = ArmState.RUNNING
@@ -170,25 +175,26 @@ class RobotController:
         self.current_goal = 0
 
     def _next_pose_callback(self, req):
+        rospy.logdebug(f"Next pose service is queried")
         response = TriggerResponse()
-
         if self.current_goal < len(self.joint_path):
             self._state = ArmState.RUNNING
             
             joint_goal = self.joint_path[self.current_goal]
             self.robot.go_to_joint_goal_rad(joint_goal, wait=True)
             self.current_goal += 1
-            rospy.loginfo(f"[RobotController] Moved to goal {self.current_goal}")
+            rospy.loginfo(f"Moved to goal {self.current_goal}")
 
             self._state = ArmState.IDLE
             response.success = True
             return response
         else:
-            rospy.loginfo("[RobotController] All goals completed")
+            rospy.loginfo("All goals completed")
             response.success = False
             return response
 
     def _query_pose_callback(self, req):
+        rospy.loginfo("Pose is queried")
         self._secure_data.acquire()
         try:
             # Obtain the current pose (which is a PoseStamped object
@@ -202,13 +208,22 @@ class RobotController:
         response.pose.pose.position = pose_stamped.pose.position
         response.pose.pose.orientation = pose_stamped.pose.orientation
         return response
+    
+    def shutdown_callback(self, req):
+        rospy.loginfo("Service call to shutdown the node")
+        response = TriggerResponse()
+        response.success = True
+        rospy.signal_shutdown("Requested shutdown.")
+        return response
 
     def cleanup(self) -> None:
-        rospy.loginfo("[RobotController] Cleaning up")
+        rospy.logdebug("Cleaning up")
         # self._safety_thread.join()
         self.robot.shutdown()
         # self.collisions.remove_collision_object()
-        rospy.loginfo("[RobotController] Clean-up completed")
+        rospy.logdebug("Clean-up completed")
+
+
 
 if __name__ == "__main__":
 
@@ -216,12 +231,12 @@ if __name__ == "__main__":
         cfg = yaml.safe_load(file)
 
     try:    
-        mp = RobotController(cfg)
+        mp = RobotController(cfg)  
     except rospy.ROSInterruptException:
-        print("Interrupted by user")
+        rospy.loginfo("Interrupted by user")
 
     #               OUTPUT OBTAINED FROM FOLLOWING near_q_list_sim_deg.yaml
-    # [RobotController] POSE AT GOAL 0: header: 
+    # POSE AT GOAL 0: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2324
@@ -237,10 +252,10 @@ if __name__ == "__main__":
     #     y: -0.41107552144254766
     #     z: 0.18013850094998465
     #     w: 0.363364214744998
-    # [RobotController] Start planning goal 1
-    # [RobotController] Goal 1 completed
+    # Start planning goal 1
+    # Goal 1 completed
 
-    # [RobotController] POSE AT GOAL 1: header: 
+    # POSE AT GOAL 1: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2327
@@ -256,10 +271,10 @@ if __name__ == "__main__":
     #     y: -0.6708334808526397
     #     z: 0.2304237406275697
     #     w: 0.20164184960455844
-    # [RobotController] Start planning goal 2
-    # [RobotController] Goal 2 completed
+    # Start planning goal 2
+    # Goal 2 completed
 
-    # [RobotController] POSE AT GOAL 2: header: 
+    # POSE AT GOAL 2: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2328
@@ -275,10 +290,10 @@ if __name__ == "__main__":
     #     y: -0.7012164259384711
     #     z: 0.38830146561662704
     #     w: 0.1583036675574085
-    # [RobotController] Start planning goal 3
-    # [RobotController] Goal 3 completed
+    # Start planning goal 3
+    # Goal 3 completed
 
-    # [RobotController] POSE AT GOAL 3: header: 
+    # POSE AT GOAL 3: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2334
@@ -294,10 +309,10 @@ if __name__ == "__main__":
     #     y: -0.18965173845372166
     #     z: 0.21605898629211884
     #     w: 0.6664248283291114
-    # [RobotController] Start planning goal 4
-    # [RobotController] Goal 4 completed
+    # Start planning goal 4
+    # Goal 4 completed
 
-    # [RobotController] POSE AT GOAL 4: header: 
+    # POSE AT GOAL 4: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2339
@@ -313,10 +328,10 @@ if __name__ == "__main__":
     #     y: -0.49354118154025933
     #     z: 0.5078530290599778
     #     w: 0.5109891078879707
-    # [RobotController] Start planning goal 5
-    # [RobotController] Goal 5 completed
+    # Start planning goal 5
+    # Goal 5 completed
 
-    # [RobotController] POSE AT GOAL 5: header: 
+    # POSE AT GOAL 5: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2341
@@ -332,10 +347,10 @@ if __name__ == "__main__":
     #     y: -0.5910913303387061
     #     z: 0.6237018000257155
     #     w: 0.37444270154610243
-    # [RobotController] Start planning goal 6
-    # [RobotController] Goal 6 completed
+    # Start planning goal 6
+    # Goal 6 completed
 
-    # [RobotController] POSE AT GOAL 6: header: 
+    # POSE AT GOAL 6: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2347
@@ -351,10 +366,10 @@ if __name__ == "__main__":
     #     y: -0.2322508680798385
     #     z: 0.3973592717310248
     #     w: 0.7618135858802386
-    # [RobotController] Start planning goal 7
-    # [RobotController] Goal 7 completed
+    # Start planning goal 7
+    # Goal 7 completed
 
-    # [RobotController] POSE AT GOAL 7: header: 
+    # POSE AT GOAL 7: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2348
@@ -370,10 +385,10 @@ if __name__ == "__main__":
     #     y: -0.2795823951162415
     #     z: 0.5364328446703883
     #     w: 0.7241815961213194
-    # [RobotController] Start planning goal 8
-    # [RobotController] Goal 8 completed
+    # Start planning goal 8
+    # Goal 8 completed
 
-    # [RobotController] POSE AT GOAL 8: header: 
+    # POSE AT GOAL 8: header: 
     #   seq: 0
     #   stamp: 
     #     secs: 2351
@@ -389,7 +404,7 @@ if __name__ == "__main__":
     #     y: -0.40975936961710974
     #     z: 0.7547127963406675
     #     w: 0.4531034996492927
-    # [RobotController] All goals completed
-    # [RobotController] Moving back to home position
-    # [RobotController] Moving back to home position DONE
-    # [RobotController] DEMO COMPLETE
+    # All goals completed
+    # Moving back to home position
+    # Moving back to home position DONE
+    # DEMO COMPLETE

@@ -39,21 +39,20 @@ class ArmModuleUR5e():
         self.scene = PlanningSceneInterface()
         self.group = MoveGroupCommander("manipulator")
 
-        # SET AND TEST
+        # DEBUGGING---------------------------------------------------
         # self.group.set_pose_reference_frame("base_link")
         self.group.set_pose_reference_frame("world")
-        print("POSE REFERENCE FRAME: ", self.group.get_pose_reference_frame())
+        # print("POSE REFERENCE FRAME: ", self.group.get_pose_reference_frame())
 
         # self.group_names = self.robot.get_group_names()
         # self._cur_js = self.group.get_current_joint_values()
 
         self.group.set_end_effector_link("camera_color_optical_frame")
-        print("EELINK: ", self.group.get_end_effector_link())
+        # print("EELINK: ", self.group.get_end_effector_link())
 
-        current_pose = self.group.get_current_pose().pose
-        print("Current pose: ", current_pose)
-
-        # exit(1)
+        # current_pose = self.group.get_current_pose().pose
+        # print("Current pose: ", current_pose)
+        # -----------------------------------------------------------
 
 
         # self._gripper = Gripper()
@@ -73,11 +72,12 @@ class ArmModuleUR5e():
 
         self._movegroup_setup()
 
-        rospy.logdebug(f"=== PLANNING FRAME DETAILS ===")
-        rospy.logdebug(f"============ Planning frame: {self.group.get_planning_frame()}")
-        rospy.logdebug(f"============ End effector link: {self.group.get_end_effector_link()}")
-        rospy.logdebug(f"============ Pose reference frame: {self.group.get_pose_reference_frame()}")
-
+        # DEBUGGING---------------------------------------------------
+        # rospy.logdebug(f"=== PLANNING FRAME DETAILS ===")
+        # rospy.logdebug(f"============ Planning frame: {self.group.get_planning_frame()}")
+        # rospy.logdebug(f"============ End effector link: {self.group.get_end_effector_link()}")
+        # rospy.logdebug(f"============ Pose reference frame: {self.group.get_pose_reference_frame()}")
+        # -----------------------------------------------------------
 
     def _movegroup_setup(self):
         r"""
