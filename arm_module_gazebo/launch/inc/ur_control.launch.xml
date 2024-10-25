@@ -36,7 +36,7 @@
   <rosparam file="$(arg controller_config_file)" command="load"/>
 
   <!-- Start Gazebo and load the empty world if requested to do so -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg start_gazebo)">
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg gazebo_world)"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -61,5 +61,8 @@
   <!-- Load other controllers, but do not start them -->
   <node name="ros_control_stopped_spawner" pkg="controller_manager" type="spawner"
     args="--stopped $(arg stopped_controllers)" output="screen" respawn="false" />
+
+  <!-- RViz-->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find arm_module_gazebo)/rviz/arm_module_full.rviz" />
 
 </launch>

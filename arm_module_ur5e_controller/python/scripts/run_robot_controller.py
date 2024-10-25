@@ -4,6 +4,7 @@ sys.path.insert(0, arm_module_ur5e_controller_path)
 
 import math
 import threading
+import time
 from enum import Enum
 import yaml
 
@@ -181,6 +182,7 @@ class RobotController:
             self._state = ArmState.RUNNING
             
             joint_goal = self.joint_path[self.current_goal]
+
             self.robot.go_to_joint_goal_rad(joint_goal, wait=True)
             self.current_goal += 1
             rospy.loginfo(f"Moved to goal {self.current_goal}")
@@ -211,9 +213,14 @@ class RobotController:
     
     def shutdown_callback(self, req):
         rospy.loginfo("Service call to shutdown the node")
+
+        while self._state == ArmState.RUNNING:
+            rospy.loginfo("Waiting for the robot to finish the current task...")
+            time.sleep(1) 
+
+        rospy.signal_shutdown("Requested shutdown.")
         response = TriggerResponse()
         response.success = True
-        rospy.signal_shutdown("Requested shutdown.")
         return response
 
     def cleanup(self) -> None:
@@ -222,7 +229,6 @@ class RobotController:
         self.robot.shutdown()
         # self.collisions.remove_collision_object()
         rospy.logdebug("Clean-up completed")
-
 
 
 if __name__ == "__main__":

@@ -41,3 +41,5 @@ The realsense_gazebo_plugin outputs the following topics:
     - /arm_module_camera/color/camera_info - RGB camera info
   - Output: 
     - /arm_module_camera/depth_registered/points - XYZRGB point cloud
+
+    <arg name="world_name" value="$(find arm_module_gazebo)/worlds/apple_trellis.world"/> <!-- World file with the apple trellis -->
