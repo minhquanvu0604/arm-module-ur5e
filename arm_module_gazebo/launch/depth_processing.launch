@@ -1,4 +1,7 @@
 <launch>
+  <!-- Supplied parameters by user-->
+  <arg name="always_pub_normals"/> <!-- Compute and publish pointcloud normals as new pointcloud arrives -->
+
   <arg name="namespace" default="arm_module_camera" />
   <arg name="manager" default="arm_module" />
 
@@ -7,7 +10,6 @@
   <arg name="queue_size" default="10" />
 
   <arg name="pointcloud_normals" default="true"/>
-  <arg name="always_pub_normals"/>
 
   <group ns="$(arg namespace)">
     <!-- Nodelet manager -->

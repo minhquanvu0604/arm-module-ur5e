@@ -30,9 +30,6 @@
     this setup completely.
   -->
 
-  <!-- Supplied parameters by user-->
-  <arg name="always_pub_normals"/> <!-- Compute and publish pointcloud normals as new pointcloud arrives -->
-
   <!--Robot description and related parameter files -->
   <arg name="robot_description_file" default="$(dirname)/inc/load_ur5e_pillar_camera.launch.xml" doc="Launch file which populates the 'robot_description' parameter."/>
   <arg name="joint_limit_params" default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
@@ -98,8 +95,8 @@
   <!--          GAZEBO ends         -->
 
   <!-- Launch depth processing pipeline to get pointcloud -->
-  <include file="$(find arm_module_gazebo)/launch/depth_processing.launch">
+  <!-- <include file="$(find arm_module_gazebo)/launch/depth_processing.launch">
     <arg name="always_pub_normals" value="$(arg always_pub_normals)"/>
-  </include>
+  </include> -->
   
 </launch>
