@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os, sys
 arm_module_ur5e_controller_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')) # arm_module_ur5e_controller
 sys.path.insert(0, arm_module_ur5e_controller_path)
@@ -108,6 +110,8 @@ class RobotController:
             self._next_pose_setup()
             self._next_pose_service = rospy.Service('mvps/arm_module/next_pose', Trigger, self._next_pose_callback)
             rospy.loginfo("Service to go to next pose is ready. Waiting for service call to signal moving to next pose.")
+            self._reset_pose_service = rospy.Service('mvps/arm_module/reset_pose', Trigger, self._reset_pose_callback)
+            rospy.loginfo("Service to reset pose is ready. Call the serive to restart the queue from the first pose.")
         else:
             rospy.logerr("Invalid mode selected. Exiting...")
             exit(1)
@@ -194,6 +198,17 @@ class RobotController:
             rospy.loginfo("All goals completed")
             response.success = False
             return response
+        
+    def _reset_pose_callback(self, req):
+        rospy.loginfo("Reset pose service is queried. Moving to home position")
+        self.robot.go_to_joint_goal_rad(RobotController.HOME_JOINT_RAD, wait=True)
+        rospy.loginfo("Moved to home position")
+
+        self.current_goal = 0
+    
+        response = TriggerResponse()
+        response.success = True
+        return response
 
     def _query_pose_callback(self, req):
         rospy.loginfo("Pose is queried")

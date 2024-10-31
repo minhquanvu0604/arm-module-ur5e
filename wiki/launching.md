@@ -8,10 +8,8 @@ Modify launch files and urdf to add the base of the robot arm (in UTS:RI lab it 
 
 If you include the pointcloud_normals nodelet, you need to build and source the MVPS package
 ```bash
-roslaunch arm_module_gazebo arm_module_ur5e_bringup.launch always_pub_normals:=false
+roslaunch arm_module_gazebo arm_module_ur5e_bringup.launch
 ```
-`always_pub_normals` means always compute and publish pointcloud normals as new pointcloud arrives.
-Otherwise it conly publishes in response to service call.
 
 Starting up RViz with a configuration including the MoveIt! Motion Planning plugin
 ```bash
@@ -68,20 +66,19 @@ roslaunch arm_module_ur5e_moveit_config moveit_rviz.launch
 ```
 </details>
 
+## 2. Launch the controller
+Choose the demo mode in `arm_module_ur5e_controller/cfg/arm_module_controller_config.yaml`
+- Mode 1: Controller script acts as a service server. Use service call to supply goal pose to it
+- Mode 2: Launch the test node to go through a set of waypoints in `cfg/list_poses.json`
+- Mode 3: MVPS integration. Read a list of poses from `cfg/near_q_list_sim_deg.yaml`, reach goal poses one by one,
+use service call to signal moving next pose of that list
 
-## 2. Visualising the perception system in RViz
 ```bash
-# To be moved to description
-roslaunch arm_module_gazebo arm_module_perception_rviz.launch
+rosrun arm_module_ur5e_controller run_robot_controller.py
 ```
 
-## 3. Launch the controller
-Launch the test node to go through a set of waypoints in `cfg/list_poses.json`. Go to directory `arm_module_ur5e/python/scripts/` and run
-```bash
-python3 run_robot_controller.py
-```
-
-## Launch Camera Module only (Testing)
+## Launch Camera Module only (Testing Mode)
+Includes the RealSense camera looking at a chair 3D model
 ```bash
 roslaunch arm_module_gazebo test_realsense.launch
 ```

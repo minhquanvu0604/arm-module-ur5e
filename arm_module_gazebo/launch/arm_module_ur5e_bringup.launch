@@ -92,11 +92,5 @@
       -Y 0"
     output="screen" respawn="false" />
     <!-- -2.76313 -->
-  <!--          GAZEBO ends         -->
-
-  <!-- Launch depth processing pipeline to get pointcloud -->
-  <!-- <include file="$(find arm_module_gazebo)/launch/depth_processing.launch">
-    <arg name="always_pub_normals" value="$(arg always_pub_normals)"/>
-  </include> -->
-  
+  <!--          GAZEBO ends         -->  
 </launch>
