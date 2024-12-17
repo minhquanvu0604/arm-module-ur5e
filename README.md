@@ -1,4 +1,6 @@
 # Arm Module UR5e
+**A module of my capstone - Automation in Apple Picking**
+
 The repo is a ROS meta package that contains the following packages:
 - [arm_module_ur5e_controller](README.md#arm-module-ur5-controller)
 - [arm_module_ur5e_description](README.md#arm-module-ur5e-description)
